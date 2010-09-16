@@ -1,0 +1,15 @@
+webapi-vim: vim interface to Web API
+
+Description:
+
+Require:
+
+    curl command : http://curl.haxx.se/
+
+Thanks To:
+
+    Yukihiro Nakadaira : http://sites.google.com/site/yukihironakadaira/
+        autoload/base64.vim (I added small changes)
+        autoload/hmac.vim
+        autoload/sha1.vim
+

@@ -114,12 +114,22 @@ function! oauth#post(url, consumer_key, consumer_secret, access_token, access_to
       let query[key] = a:params[key]
     endfor
   endif
+  if type(a:postdata) == 4
+    for key in keys(a:postdata)
+      let query[key] = a:postdata[key]
+    endfor
+  endif
   let query_string = query["oauth_request_method"] . "&"
   let query_string .= http#encodeURI(a:url)
   let query_string .= "&"
   let query_string .= http#encodeURI(http#encodeURI(query))
   let hmacsha1 = hmac#sha1(http#encodeURI(a:consumer_secret) . "&" . http#encodeURI(a:access_token_secret), query_string)
   let query["oauth_signature"] = base64#b64encodebin(hmacsha1)
+  if type(a:postdata) == 4
+    for key in keys(a:postdata)
+      call remove(query, key)
+    endfor
+  endif
   let auth = 'OAuth '
   for key in sort(keys(query))
     let auth .= http#escape(key) . '="' . http#escape(query[key]) . '",'

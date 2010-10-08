@@ -120,7 +120,7 @@ function! oauth#post(url, consumer_key, consumer_secret, access_token, access_to
   let query_string .= http#encodeURI(http#encodeURI(query))
   let hmacsha1 = hmac#sha1(http#encodeURI(a:consumer_secret) . "&" . http#encodeURI(a:access_token_secret), query_string)
   let query["oauth_signature"] = base64#b64encodebin(hmacsha1)
-  let auth = 'OAuth realm="https://www.google.com/accounts/AuthSubRequest", '
+  let auth = 'OAuth '
   for key in sort(keys(query))
     let auth .= http#escape(key) . '="' . http#escape(query[key]) . '",'
   endfor

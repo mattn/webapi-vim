@@ -51,6 +51,17 @@ function! s:urlencode_char(c)
   return s
 endfunction
 
+function! http#decodeURI(str)
+  let ret = a:str
+  let ret = substitute(ret, '+', ' ', 'g')
+  let ret = substitute(ret, '%\(\x\x\)', '\=nr2char("0x".submatch(1))', 'g')
+  return ret
+endfunction
+
+function! http#escape(str)
+  return substitute(a:str, '[^a-zA-Z0-9_.~/-]', '\=s:urlencode_char(submatch(0))', 'g')
+endfunction
+
 function! http#encodeURI(items)
   let ret = ''
   if type(a:items) == 4
@@ -69,23 +80,35 @@ function! http#encodeURI(items)
   return ret
 endfunction
 
-function! http#encodeURIComponent(instr)
-  let instr = iconv(a:instr, &enc, "utf-8")
-  let len = strlen(instr)
-  let i = 0
-  let outstr = ''
-  while i < len
-    let ch = instr[i]
-    if ch =~# '[0-9A-Za-z-._~!''()*]'
-      let outstr .= ch
-    elseif ch == ' '
-      let outstr .= '+'
-    else
-      let outstr .= '%' . substitute('0' . s:nr2hex(char2nr(ch)), '^.*\(..\)$', '\1', '')
-    endif
-    let i = i + 1
-  endwhile
-  return outstr
+function! http#encodeURIComponent(items)
+  let ret = ''
+  if type(a:items) == 4
+    for key in sort(keys(a:items))
+      if strlen(ret) | let ret .= "&" | endif
+      let ret .= key . "=" . http#encodeURIComponent(a:items[key])
+    endfor
+  elseif type(a:items) == 3
+    for item in sort(a:items)
+      if strlen(ret) | let ret .= "&" | endif
+      let ret .= item
+    endfor
+  else
+    let items = iconv(a:items, &enc, "utf-8")
+    let len = strlen(items)
+    let i = 0
+    while i < len
+      let ch = items[i]
+      if ch =~# '[0-9A-Za-z-._~!''()*]'
+        let ret .= ch
+      elseif ch == ' '
+        let ret .= '+'
+      else
+        let ret .= '%' . substitute('0' . s:nr2hex(char2nr(ch)), '^.*\(..\)$', '\1', '')
+      endif
+      let i = i + 1
+    endwhile
+  endif
+  return ret
 endfunction
 
 function! http#get(url, getdata, headdata)
@@ -97,7 +120,11 @@ function! http#get(url, getdata, headdata)
   let command = 'curl -L -s -k -i -H "Accept: *"'
   let quote = &shellxquote == '"' ?  "'" : '"'
   for key in keys(a:headdata)
-    let command .= " -H " . quote . key . ": " . a:headdata[key] . quote
+    if has('win32')
+      let command .= " -H " . quote . key . ": " . substitute(a:headdata[key], '"', '"""', 'g') . quote
+    else
+      let command .= " -H " . quote . key . ": " . a:headdata[key] . quote
+	endif
   endfor
   let command .= " ".quote.url.quote
   let res = system(command)
@@ -125,7 +152,11 @@ endfunction
 
 function! http#post(url, postdata, headdata)
   let url = a:url
-  let postdata = http#encodeURI(a:postdata)
+  if type(a:postdata) == 4
+    let postdata = http#encodeURI(a:postdata)
+  else
+    let postdata = a:postdata
+  endif
   let command = 'curl -L -s -k -i -H "Accept: *"'
   let quote = &shellxquote == '"' ?  "'" : '"'
   for key in keys(a:headdata)

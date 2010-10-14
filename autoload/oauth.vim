@@ -8,7 +8,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! oauth#request_token(url, ctx, params)
+function! oauth#request_token(url, ctx, ...)
   let params = a:0 > 0 ? a:000[0] : {}
   let query = {}
   let time_stamp = localtime()
@@ -35,7 +35,7 @@ function! oauth#request_token(url, ctx, params)
   return a:ctx
 endfunction
 
-function! oauth#access_token(url, ctx, params)
+function! oauth#access_token(url, ctx, ...)
   let params = a:0 > 0 ? a:000[0] : {}
   let query = {}
   let time_stamp = localtime()
@@ -64,7 +64,7 @@ function! oauth#access_token(url, ctx, params)
   return a:ctx
 endfunction
 
-function! oauth#get(url, ctx, params, getdata, headdata)
+function! oauth#get(url, ctx, ...)
   let params = a:0 > 0 ? a:000[0] : {}
   let getdata = a:0 > 1 ? a:000[1] : {}
   let headdata = a:0 > 2 ? a:000[2] : {}
@@ -98,7 +98,7 @@ function! oauth#get(url, ctx, params, getdata, headdata)
   return res
 endfunction
 
-function! oauth#post(url, ctx, params, postdata, headdata)
+function! oauth#post(url, ctx, ...)
   let params = a:0 > 0 ? a:000[0] : {}
   let postdata = a:0 > 1 ? a:000[1] : {}
   let headdata = a:0 > 2 ? a:000[2] : {}

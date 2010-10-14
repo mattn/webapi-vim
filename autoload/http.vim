@@ -111,19 +111,21 @@ function! http#encodeURIComponent(items)
   return ret
 endfunction
 
-function! http#get(url, getdata, headdata)
+function! http#get(url, ...)
+  let getdata = a:0 > 0 ? a:000[0] : {}
+  let headdata = a:0 > 1 ? a:000[1] : {}
   let url = a:url
-  let getdata = http#encodeURI(a:getdata)
-  if strlen(getdata)
-    let url .= "?" . getdata
+  let getdatastr = http#encodeURI(getdata)
+  if strlen(getdatastr)
+    let url .= "?" . getdatastr
   endif
-  let command = 'curl -L -s -k -i -H "Accept: *"'
+  let command = 'curl -L -s -k -i '
   let quote = &shellxquote == '"' ?  "'" : '"'
-  for key in keys(a:headdata)
+  for key in keys(headdata)
     if has('win32')
-      let command .= " -H " . quote . key . ": " . substitute(a:headdata[key], '"', '"""', 'g') . quote
+      let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
     else
-      let command .= " -H " . quote . key . ": " . a:headdata[key] . quote
+      let command .= " -H " . quote . key . ": " . headdata[key] . quote
 	endif
   endfor
   let command .= " ".quote.url.quote
@@ -150,25 +152,27 @@ function! http#get(url, getdata, headdata)
   \}
 endfunction
 
-function! http#post(url, postdata, headdata)
+function! http#post(url, ...)
+  let postdata = a:0 > 0 ? a:000[0] : {}
+  let headdata = a:0 > 1 ? a:000[1] : {}
   let url = a:url
-  if type(a:postdata) == 4
-    let postdata = http#encodeURI(a:postdata)
+  if type(postdata) == 4
+    let postdatastr = http#encodeURI(postdata)
   else
-    let postdata = a:postdata
+    let postdatastr = postdata
   endif
-  let command = 'curl -L -s -k -i -H "Accept: *"'
+  let command = 'curl -L -s -k -i '
   let quote = &shellxquote == '"' ?  "'" : '"'
-  for key in keys(a:headdata)
+  for key in keys(headdata)
     if has('win32')
-      let command .= " -H " . quote . key . ": " . substitute(a:headdata[key], '"', '"""', 'g') . quote
+      let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
     else
-      let command .= " -H " . quote . key . ": " . a:headdata[key] . quote
+      let command .= " -H " . quote . key . ": " . headdata[key] . quote
 	endif
   endfor
   let command .= " ".quote.url.quote
   let file = tempname()
-  call writefile([postdata], file)
+  call writefile([postdatastr], file)
   let res = system(command . " -d @" . quote.file.quote)
   call delete(file)
   if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established'

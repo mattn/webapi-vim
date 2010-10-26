@@ -62,6 +62,9 @@ function! s:matchNode(node, cond)
   if type(a:cond) == 1 && a:node.name == a:cond
     return 1
   endif
+  if type(a:cond) == 2
+    return a:cond(a:node)
+  endif
   if type(a:cond) == 3
     let ret = 1
     for r in a:cond
@@ -251,6 +254,10 @@ function! xml#parse(xml)
   "endtry
   let &maxmempattern=oldmaxmempattern
   throw "Parse Error"
+endfunction
+
+function! xml#parseURL(url)
+  return xml#parse(http#get(a:url).content)
 endfunction
 
 let &cpo = s:save_cpo

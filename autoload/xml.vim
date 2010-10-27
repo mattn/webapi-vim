@@ -69,6 +69,7 @@ function! s:matchNode(node, cond)
     let ret = 1
     for r in a:cond
       if !s:matchNode(a:node, r) | let ret = 0 | endif
+      unlet r
     endfor
     return ret
   endif

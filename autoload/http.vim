@@ -172,7 +172,7 @@ function! http#post(url, ...)
   endfor
   let command .= " ".quote.url.quote
   let file = tempname()
-  call writefile([postdatastr], file)
+  call writefile(split(postdatastr, "\n"), file)
   let res = system(command . " -d @" . quote.file.quote)
   call delete(file)
   if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established'

@@ -101,7 +101,10 @@ function! s:template.childNodes(...) dict
   return ret
 endfunction
 
-function! s:template.value() dict
+function! s:template.value(...) dict
+  if a:0
+    let self.child = a:000
+  endif
   let ret = ''
   for c in self.child
     if type(c) == 1
@@ -161,13 +164,16 @@ function! s:template.toString() dict
       unlet c
     endfor
     let xml .= '</' . self.name . '>'
-  elseif len(self.value)
-    let xml .= '>' . s:encodeEntityReference(self.value)
-    let xml .= '</' . self.name . '>'
   else
     let xml .= ' />'
   endif
   return xml
+endfunction
+
+function! xml#createElement(name)
+  let node = deepcopy(s:template)
+  let node.name = a:name
+  return node
 endfunction
 
 function! s:parse_tree(ctx, top)

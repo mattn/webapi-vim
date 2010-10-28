@@ -1,6 +1,19 @@
-webapi-vim: vim interface to Web API
+webapi-vim: Vim Interface to Web API
 
 Description:
+    Interface to WEB APIs.
+    Currently this library support following protocols.
+
+    * Basic HTTP
+    * OAuth
+    * Atompub
+    * SOAP (in progress)
+
+    This library include:
+        XML Parser
+        BASE64 Hash Algorism
+        SHA1 Hash Algorism
+        HMAC HASH Algorism
 
 Require:
 

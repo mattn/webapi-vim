@@ -53,26 +53,18 @@ let s:entry_template = {
 \ "updated": "",
 \}
 
-for s:key in keys(s:feed_template)
-  let key = substitute(s:key, '\.\(.\)', '\=toupper(submatch(1))', '')
-  exe "function s:feed_template.set".toupper(key[0]).key[1:]."(v) dict\n"
-  \. "  let self['".s:key."'] = a:v\n"
-  \. "endfunction\n"
-  exe "function s:feed_template.get".toupper(key[0]).key[1:]."() dict\n"
-  \. "  return self['".s:key."']\n"
-  \. "endfunction\n"
+for s:name in ['author', 'link', 'category', 'feed', 'entry']
+  for s:key in keys(eval('s:'.s:name.'_template'))
+    let key = substitute(s:key, '\.\(.\)', '\=toupper(submatch(1))', '')
+    exe "function s:".s:name."_template.set".toupper(key[0]).key[1:]."(v) dict\n"
+    \. "  let self['".s:key."'] = a:v\n"
+    \. "endfunction\n"
+    exe "function s:".s:name."_template.get".toupper(key[0]).key[1:]."() dict\n"
+    \. "  return self['".s:key."']\n"
+    \. "endfunction\n"
+  endfor
 endfor
-unlet s:key
-
-for s:key in keys(s:entry_template)
-  let key = substitute(s:key, '\.\(.\)', '\=toupper(submatch(1))', '')
-  exe "function s:entry_template.set".toupper(key[0]).key[1:]."(v) dict\n"
-  \. "  let self['".s:key."'] = a:v\n"
-  \. "endfunction\n"
-  exe "function s:entry_template.get".toupper(key[0]).key[1:]."() dict\n"
-  \. "  return self['".s:key."']\n"
-  \. "endfunction\n"
-endfor
+unlet s:name
 unlet s:key
 
 function! atom#newEntry()
@@ -202,22 +194,7 @@ function! atom#getEntry(uri, user, pass)
 	\ })
   let dom = xml#parse(res.content)
   let entry = deepcopy(s:entry_template)
-  for node in dom.child
-    if type(node) != 4 || !has_key(node, 'name') || !has_key(entry, node.name)
-	  unlet node
-      continue
-    endif
-    let entry[node.name] = node.value()
-    if node.name == 'content'
-      if has_key(node.attr, 'type')
-        let entry['content.type'] = node.attr['type']
-      endif
-      if has_key(node.attr, 'type')
-        let entry['content.type'] = node.attr['type']
-      endif
-	endif
-	unlet node
-  endfor
+  call s:parse_node(entry, dom)
   return entry
 endfunction
 

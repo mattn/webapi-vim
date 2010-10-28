@@ -155,13 +155,14 @@ endfunction
 function! http#post(url, ...)
   let postdata = a:0 > 0 ? a:000[0] : {}
   let headdata = a:0 > 1 ? a:000[1] : {}
+  let method = a:0 > 2 ? a:000[2] : "POST"
   let url = a:url
   if type(postdata) == 4
     let postdatastr = http#encodeURI(postdata)
   else
     let postdatastr = postdata
   endif
-  let command = 'curl -L -s -k -i '
+  let command = 'curl -L -s -k -i -X '.method
   let quote = &shellxquote == '"' ?  "'" : '"'
   for key in keys(headdata)
     if has('win32')
@@ -199,3 +200,5 @@ endfunction
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+
+" vim:set et:

@@ -3,8 +3,7 @@
 " Maintainer:   Yasuhiro Matsumoto <mattn.jp@gmail.com>
 " License:      This file is placed in the public domain.
 " Reference:
-"
-   
+
 let s:save_cpo = &cpo
 set cpo&vim
 

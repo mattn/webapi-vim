@@ -181,8 +181,8 @@ function! atom#getFeed(uri, user, pass)
     \ {
     \   "X-WSSE": s:createWsse(a:user, a:pass)
 	\ })
-  let feed = deepcopy(s:feed_template)
   let dom = xml#parse(res.content)
+  let feed = deepcopy(s:feed_template)
   call s:parse_node(feed, dom)
   return feed
 endfunction

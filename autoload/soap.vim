@@ -30,10 +30,37 @@ function! s:soap_call(url, func, ...)
   let str = '<?xml version="1.0" encoding="UTF-8"?>' . envelope.toString()
   let res = http#post(a:url, str)
   let dom = xml#parse(res.content)
-  let ret = {}
-  for item in dom.findAll("item")
-    let ret[item.find("key").value()] = item.find("value").value()
-  endfor
+  return s:parse_return(dom.find("return"))
+endfunction
+
+function! s:parse_return(node)
+  if a:node.attr["xsi:type"] =~ ":Array$"
+    let arr = []
+    for item in a:node.child
+      call add(ret, s:parse_return(item.child)
+    endfor
+    let ret = arr
+  elseif a:node.attr["xsi:type"] =~ ":Map$"
+    let ret = {}
+    for item in a:node.childNodes("item")
+      let val = item.childNode("value")
+      if val.attr["xsi:type"] =~ ":Map$"
+        let ret[item.childNode("key").value()] = s:parse_return(val)
+      else
+        let ret[item.childNode("key").value()] = item.childNode("value").value()
+      endif
+    endfor
+  else
+    if len(a:node.child)
+      let arr = []
+      for item in a:node.child
+        call add(arr, s:parse_return(item)
+      endfor
+      let ret = arr
+    else
+      let ret = s:parse_return(a:node)
+    endif
+  endif
   return ret
 endfunction
 
@@ -48,7 +75,7 @@ function! s:get_convert_code(arg)
     let code .= "let ".arg.name." = (0+a:".arg.name.") ? 'true' : 'false'"
   elseif arg.type == "xsd:float"
     let code .= "let ".arg.name." = nr2float(0+a:".arg.name.")"
-  elseif arg.type == "soap-enc:Array"
+  elseif arg.type =~ ":Array$"
     let code .= "let ".arg.name." = a:".arg.name
   else
     echoerr "unknown type:". arg.type

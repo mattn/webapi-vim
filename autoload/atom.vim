@@ -8,15 +8,42 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:template = {
+let s:author_template = {
+\ "name": "",
+\}
+
+let s:link_template = {
+\ "rel": "",
+\ "href": "",
+\}
+
+let s:category_template = {
+\ "term": "",
+\ "scheme": "",
+\ "label": "",
+\}
+
+let s:feed_template = {
 \ "id": "",
 \ "icon": "",
 \ "logo": "",
 \ "title": "",
-\ "link": "",
-\ "category": "",
-\ "author": "",
-\ "contirubutor": "",
+\ "link": [],
+\ "category": [],
+\ "author": [],
+\ "contirubutor": [],
+\ "entry": [],
+\}
+
+let s:entry_template = {
+\ "id": "",
+\ "icon": "",
+\ "logo": "",
+\ "title": "",
+\ "link": [],
+\ "category": [],
+\ "author": [],
+\ "contirubutor": [],
 \ "copyright": "",
 \ "content": "",
 \ "content.type": "text/plain",
@@ -26,19 +53,30 @@ let s:template = {
 \ "updated": "",
 \}
 
-for s:key in keys(s:template)
+for s:key in keys(s:feed_template)
   let key = substitute(s:key, '\.\(.\)', '\=toupper(submatch(1))', '')
-  exe "function s:template.set".toupper(key[0]).key[1:]."(v) dict\n"
+  exe "function s:feed_template.set".toupper(key[0]).key[1:]."(v) dict\n"
   \. "  let self['".s:key."'] = a:v\n"
   \. "endfunction\n"
-  exe "function s:template.get".toupper(key[0]).key[1:]."() dict\n"
+  exe "function s:feed_template.get".toupper(key[0]).key[1:]."() dict\n"
+  \. "  return self['".s:key."']\n"
+  \. "endfunction\n"
+endfor
+unlet s:key
+
+for s:key in keys(s:entry_template)
+  let key = substitute(s:key, '\.\(.\)', '\=toupper(submatch(1))', '')
+  exe "function s:entry_template.set".toupper(key[0]).key[1:]."(v) dict\n"
+  \. "  let self['".s:key."'] = a:v\n"
+  \. "endfunction\n"
+  exe "function s:entry_template.get".toupper(key[0]).key[1:]."() dict\n"
   \. "  return self['".s:key."']\n"
   \. "endfunction\n"
 endfor
 unlet s:key
 
 function! atom#newEntry()
-  return deepcopy(s:template)
+  return deepcopy(s:entry_template)
 endfunction
 
 function! s:createXml(entry)
@@ -101,27 +139,85 @@ function! atom#createEntry(uri, user, pass, entry, ...)
   return ''
 endfunction
 
+function! s:parse_node(target, parent)
+  for node in a:parent.child
+    if type(node) != 4 || !has_key(a:target, node.name)
+      unlet node
+      continue
+    endif
+    if node.name == 'content'
+      let a:target[node.name] = node.value()
+      if has_key(node.attr, 'type')
+        let a:target['content.type'] = node.attr['type']
+      endif
+      if has_key(node.attr, 'type')
+        let a:target['content.type'] = node.attr['type']
+      endif
+    elseif node.name == 'link'
+      let link = deepcopy(s:link_template)
+      for attr in keys(node.attr)
+        if !has_key(link, attr)
+          continue
+        endif
+        let link[attr] = node.attr[attr]
+      endfor
+      call add(a:target.link, link)
+    elseif node.name == 'author'
+      let author = deepcopy(s:author_template)
+      for item in node.child
+        if type(item) == 4 && has_key(author, item.name)
+          let author[item.name] = item.value()
+        endif
+        unlet item
+      endfor
+      call add(a:target.author, author)
+    elseif node.name == 'entry'
+      let entry = deepcopy(s:entry_template)
+      call s:parse_node(entry, node)
+      call add(a:target.entry, entry)
+    elseif type(a:target[node.name]) == 3
+      call add(a:target[node.name], parent.value())
+    else
+      let a:target[node.name] = node.value()
+    endif
+	unlet node
+  endfor
+endfunction
+
+function! atom#getFeed(uri, user, pass)
+  let res = http#get(a:uri, {},
+    \ {
+    \   "X-WSSE": s:createWsse(a:user, a:pass)
+	\ })
+  let feed = deepcopy(s:feed_template)
+  let dom = xml#parse(res.content)
+  call s:parse_node(feed, dom)
+  return feed
+endfunction
+
 function! atom#getEntry(uri, user, pass)
   let res = http#get(a:uri, {},
     \ {
     \   "X-WSSE": s:createWsse(a:user, a:pass)
 	\ })
-  let entry = deepcopy(s:template)
   let dom = xml#parse(res.content)
+  let entry = deepcopy(s:entry_template)
   for node in dom.child
-    if type(node) == 4 && has_key(node, 'name') && has_key(entry, node.name)
-      let entry[node.name] = node.value()
-      if node.name == 'content'
-        if has_key(node.attr, 'type')
-          let entry['content.type'] = node.attr['type']
-        endif
-        if has_key(node.attr, 'type')
-          let entry['content.type'] = node.attr['type']
-        endif
+    if type(node) != 4 || !has_key(node, 'name') || !has_key(entry, node.name)
+	  unlet node
+      continue
+    endif
+    let entry[node.name] = node.value()
+    if node.name == 'content'
+      if has_key(node.attr, 'type')
+        let entry['content.type'] = node.attr['type']
+      endif
+      if has_key(node.attr, 'type')
+        let entry['content.type'] = node.attr['type']
       endif
 	endif
 	unlet node
-  endfor  
+  endfor
   return entry
 endfunction
 

@@ -80,7 +80,9 @@ function! s:template.newPost(blogid, username, password, content, publish) dict
     call add(params.child, param)
   endfor
   call add(methodCall.child, params)
-  let res = http#post(self.uri, methodCall.toString(), {"Content-Type": "text/xml"})
+  let xml = iconv(methodCall.toString(), &encoding, "utf-8")
+  echo xml
+  let res = http#post(self.uri, xml, {"Content-Type": "text/xml"})
   let dom = xml#parse(res.content)
   if len(dom.find('fault'))
     throw s:to_fault(dom)
@@ -103,7 +105,8 @@ function! s:template.editPost(postid, username, password, content, publish) dict
     call add(params.child, param)
   endfor
   call add(methodCall.child, params)
-  let res = http#post(self.uri, methodCall.toString(), {"Content-Type": "text/xml"})
+  let xml = iconv(methodCall.toString(), &encoding, "utf-8")
+  let res = http#post(self.uri, xml, {"Content-Type": "text/xml"})
   let dom = xml#parse(res.content)
   if len(dom.find('fault'))
     throw s:to_fault(dom)
@@ -131,7 +134,8 @@ function! s:template.getPost(postid, username, password) dict
     call add(params.child, param)
   endfor
   call add(methodCall.child, params)
-  let res = http#post(self.uri, methodCall.toString(), {"Content-Type": "text/xml"})
+  let xml = iconv(methodCall.toString(), &encoding, "utf-8")
+  let res = http#post(self.uri, xml, {"Content-Type": "text/xml"})
   let dom = xml#parse(res.content)
   if len(dom.find('fault'))
     throw s:to_fault(dom)
@@ -159,7 +163,8 @@ function! s:template.getRecentPosts(blogid, username, password, numberOfPosts) d
     call add(params.child, param)
   endfor
   call add(methodCall.child, params)
-  let res = http#post(self.uri, methodCall.toString(), {"Content-Type": "text/xml"})
+  let xml = iconv(methodCall.toString(), &encoding, "utf-8")
+  let res = http#post(self.uri, xml, {"Content-Type": "text/xml"})
   let dom = xml#parse(res.content)
   if len(dom.find('fault'))
     throw s:to_fault(dom)
@@ -196,9 +201,9 @@ function! s:template.deletePost(appkey, postid, username, password, ...) dict
   call value.value(1)
   call add(param.child, value)
   call add(params.child, param)
-
   call add(methodCall.child, params)
-  let res = http#post(self.uri, methodCall.toString(), {"Content-Type": "text/xml"})
+  let xml = iconv(methodCall.toString(), &encoding, "utf-8")
+  let res = http#post(self.uri, xml, {"Content-Type": "text/xml"})
   let dom = xml#parse(res.content)
   if len(dom.find('fault'))
     throw s:to_fault(dom)
@@ -260,7 +265,8 @@ function! s:template.newMediaObject(blogid, username, password, file) dict
     call add(member.child, value)
 
   call add(methodCall.child, params)
-  let res = http#post(self.uri, methodCall.toString(), {"Content-Type": "text/xml"})
+  let xml = iconv(methodCall.toString(), &encoding, "utf-8")
+  let res = http#post(self.uri, xml, {"Content-Type": "text/xml"})
   let dom = xml#parse(res.content)
   if len(dom.find('fault'))
     throw s:to_fault(dom)

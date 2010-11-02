@@ -78,7 +78,7 @@ function! s:get_convert_code(arg)
   elseif arg.type =~ ":Array$"
     let code .= "let ".arg.name." = a:".arg.name
   else
-    echoerr "unknown type:". arg.type
+    throw "unknown type:". arg.type
   endif
   return code
 endfunction

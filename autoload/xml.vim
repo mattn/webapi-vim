@@ -106,11 +106,14 @@ endfunction
 function! s:template.value(...) dict
   if a:0
     let self.child = a:000
+    return
   endif
   let ret = ''
   for c in self.child
-    if type(c) == 1
+    if type(c) <= 1 || type(c) == 5
       let ret .= c
+    elseif type(c) == 4
+      let ret .= c.value()
     endif
     unlet c
   endfor

@@ -1,27 +1,27 @@
-scriptencoding cp932
+scriptencoding utf-8
 
 let hatena_id = 'your-hatena-id'
 let password = 'your-hatena-password'
 
-" ƒGƒ“ƒgƒŠ‚ğ‘‚­
+" ã‚¨ãƒ³ãƒˆãƒªã‚’æ›¸ã
 let entry = atom#newEntry()
-call entry.setTitle("“ú‹LƒGƒ“ƒgƒŠ[ƒ^ƒCƒgƒ‹")
+call entry.setTitle("æ—¥è¨˜ã‚¨ãƒ³ãƒˆãƒªãƒ¼ã‚¿ã‚¤ãƒˆãƒ«")
 call entry.setContentType("text/html")
 call entry.setContent("<script>alert(2)</script>")
 
-" ƒGƒ“ƒgƒŠ‚ğ‰º‘‚«‚Æ‚µ‚Äƒ|ƒXƒg‚·‚é
+" ã‚¨ãƒ³ãƒˆãƒªã‚’ä¸‹æ›¸ãã¨ã—ã¦ãƒã‚¹ãƒˆã™ã‚‹
 let id = atom#createEntry("http://d.hatena.ne.jp/".hatena_id."/atom/draft", hatena_id, password, entry)
 
-" ‚¿‚å‚Á‚ÆC³‚µ‚Ä‰º‘‚«‚©‚çŒöŠJ‚É•ÏX‚µAV‚µ‚¢ID‚ğ“¾‚é
+" ã¡ã‚‡ã£ã¨ä¿®æ­£ã—ã¦ä¸‹æ›¸ãã‹ã‚‰å…¬é–‹ã«å¤‰æ›´ã—ã€æ–°ã—ã„IDã‚’å¾—ã‚‹
 call entry.setContent("<script>alert(1)</script>")
 let id = atom#updateEntry(id, hatena_id, password, entry, {"X-HATENA-PUBLISH": 1})
 
-" ŒöŠJƒGƒ“ƒgƒŠ‚ğæ“¾‚µ‚Ä•\¦‚·‚é
+" å…¬é–‹ã‚¨ãƒ³ãƒˆãƒªã‚’å–å¾—ã—ã¦è¡¨ç¤ºã™ã‚‹
 let entry = atom#getEntry(id, hatena_id, password)
 echo entry.getTitle()
 echo entry.getContent()
 
-" ƒGƒ“ƒgƒŠ‚ğÁ‚·
+" ã‚¨ãƒ³ãƒˆãƒªã‚’æ¶ˆã™
 call atom#deleteEntry(id, hatena_id, password)
 
 " vim:set ft=vim:

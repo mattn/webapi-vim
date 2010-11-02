@@ -1,4 +1,4 @@
-scriptencoding cp932
+scriptencoding utf-8
 
 let jugem_id = 'your-jugem-id'
 let password = 'your-jugem-password'
@@ -12,10 +12,10 @@ let imgurl = api.newMediaObject(jugem_id, jugem_id, password, {
 \ "path": imagePath,
 \})
 
-let text = "‚Ç‚È‚¢‚â<br /><img src=\"".imgurl."\">"
+let text = "ã©ãªã„ã‚„<br /><img src=\"".imgurl."\">"
 
 echo api.newPost(jugem_id, jugem_id, password, {
-\ "title": "vim‚ÅmetaWeblogAPI‚ğ’@‚¢‚Ä‰æ‘œ•t‚«ƒuƒƒO‚ğƒ|ƒXƒg‚·‚é",
+\ "title": "vimã§metaWeblogAPIã‚’å©ã„ã¦ç”»åƒä»˜ããƒ–ãƒ­ã‚°ã‚’ãƒã‚¹ãƒˆã™ã‚‹",
 \ "description": text,
 \ "dateCreated": "",
 \ "categories": ["test"],

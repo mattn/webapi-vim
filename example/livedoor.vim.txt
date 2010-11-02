@@ -1,11 +1,11 @@
-scriptencoding cp932
+scriptencoding utf-8
 
 let livedoor_id = 'your-livedoor-id'
 let password = 'your-livedoor-password'
 
-" ƒGƒ“ƒgƒŠ‚ğ‘‚­
+" ã‚¨ãƒ³ãƒˆãƒªã‚’æ›¸ã
 let entry = atom#newEntry()
-call entry.setTitle("“ú‹LƒGƒ“ƒgƒŠ[ƒ^ƒCƒgƒ‹")
+call entry.setTitle("æ—¥è¨˜ã‚¨ãƒ³ãƒˆãƒªãƒ¼ã‚¿ã‚¤ãƒˆãƒ«")
 call entry.setContentType("text/html")
 call entry.setContent("<script>alert(3)</script>")
 

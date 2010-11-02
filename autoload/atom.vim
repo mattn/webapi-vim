@@ -124,12 +124,8 @@ function! atom#createEntry(uri, user, pass, entry, ...)
   let headdata = a:0 > 0 ? a:000[0] : {}
   let headdata["Content-Type"] = "application/x.atom+xml"
   let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
-  "let headdata["Authorization"] = "WSSE profile=\"UsernameToken\""
-  "let headdata["Cache-Control"] = "no-cache"
   let headdata["WWW-Authenticate"] = "WSSE profile=\"UsernameToken\""
-  "let headdata["User-Agent"] = "webapi-vim/atom.vom"
   let res = http#post(a:uri, s:createXml(a:entry), headdata, "POST")
-  echo res
   let location = filter(res.header, 'v:val =~ "^Location:"')
   if len(location)
     return split(location[0], '\s*:\s\+')[1]

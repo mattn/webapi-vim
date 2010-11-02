@@ -79,12 +79,12 @@ function! s:createXml(entry)
     if type(a:entry[key]) == 1 && key !~ '\.'
       let node = xml#createElement(key)
       call node.value(a:entry[key])
-	  if key == "content"
+      if key == "content"
         let node.attr["type"] = a:entry['content.type']
         let node.attr["mode"] = a:entry['content.mode']
-	  endif
+      endif
       call add(entry.child, node)
-	endif
+    endif
   endfor
   let xml = '<?xml version="1.0" encoding="utf-8"?>' . entry.toString()
   return iconv(xml, &encoding, "utf-8")
@@ -92,9 +92,10 @@ endfunction
 
 function! s:createWsse(user, pass)
   let now = localtime()
-  let nonce = base64#b64encodebin(sha1#sha1(now . " " . now)[0:28])
+  let nonce = sha1#sha1(now . " " . now)[0:28]
   let created = strftime("%Y-%m-%dT%H:%M:%SZ", now)
   let passworddigest = base64#b64encodebin(sha1#sha1(nonce.created.a:pass))
+  let nonce = base64#b64encode(nonce)
   return 'UsernameToken Username="'.a:user.'", PasswordDigest="'.passworddigest.'", Nonce="'.nonce.'", Created="'.created.'"'
 endfunction
 
@@ -103,7 +104,7 @@ function! atom#deleteEntry(uri, user, pass)
     \ {
     \   "Content-Type": "application/x.atom+xml",
     \   "X-WSSE": s:createWsse(a:user, a:pass)
-	\ }, "DELETE")
+    \ }, "DELETE")
   return res
 endfunction
 
@@ -123,7 +124,12 @@ function! atom#createEntry(uri, user, pass, entry, ...)
   let headdata = a:0 > 0 ? a:000[0] : {}
   let headdata["Content-Type"] = "application/x.atom+xml"
   let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
+  "let headdata["Authorization"] = "WSSE profile=\"UsernameToken\""
+  "let headdata["Cache-Control"] = "no-cache"
+  let headdata["WWW-Authenticate"] = "WSSE profile=\"UsernameToken\""
+  "let headdata["User-Agent"] = "webapi-vim/atom.vom"
   let res = http#post(a:uri, s:createXml(a:entry), headdata, "POST")
+  echo res
   let location = filter(res.header, 'v:val =~ "^Location:"')
   if len(location)
     return split(location[0], '\s*:\s\+')[1]
@@ -172,26 +178,37 @@ function! s:parse_node(target, parent)
     else
       let a:target[node.name] = node.value()
     endif
-	unlet node
+    unlet node
   endfor
 endfunction
 
 function! atom#getFeed(uri, user, pass)
-  let res = http#get(a:uri, {},
-    \ {
-    \   "X-WSSE": s:createWsse(a:user, a:pass)
-	\ })
+  let headdata = {}
+  if len(a:user) > 0 && len(a:pass) > 0
+    let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
+  endif
+  let res = http#get(a:uri, {}, headdata)
   let dom = xml#parse(res.content)
   let feed = deepcopy(s:feed_template)
   call s:parse_node(feed, dom)
   return feed
 endfunction
 
+function! atom#getService(uri, user, pass)
+  let headdata = {}
+  if len(a:user) > 0 && len(a:pass) > 0
+    let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
+  endif
+  let res = http#get(a:uri, {}, headdata)
+  return xml#parse(res.content)
+endfunction
+
 function! atom#getEntry(uri, user, pass)
-  let res = http#get(a:uri, {},
-    \ {
-    \   "X-WSSE": s:createWsse(a:user, a:pass)
-	\ })
+  let headdata = {}
+  if len(a:user) > 0 && len(a:pass) > 0
+    let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
+  endif
+  let res = http#get(a:uri, {}, headdata)
   let dom = xml#parse(res.content)
   let entry = deepcopy(s:entry_template)
   call s:parse_node(entry, dom)

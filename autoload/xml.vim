@@ -52,7 +52,7 @@ function! s:encodeEntityReference(str)
   let str = substitute(str, '&', '\&amp;', 'g')
   let str = substitute(str, '>', '\&gt;', 'g')
   let str = substitute(str, '<', '\&lt;', 'g')
-  let str = substitute(str, "\n", '\&#x0d;', 'g')
+  "let str = substitute(str, "\n", '\&#x0d;', 'g')
   "let str = substitute(str, '"', '&quot;', 'g')
   "let str = substitute(str, "'", '&apos;', 'g')
   "let str = substitute(str, ' ', '&nbsp;', 'g')
@@ -249,7 +249,9 @@ endfunction
 function! xml#parse(xml)
   let top = deepcopy(s:template)
   let oldmaxmempattern=&maxmempattern
+  let oldmaxfuncdepth=&maxfuncdepth
   let &maxmempattern=2000000
+  let &maxfuncdepth=2000
   "try
     call s:parse_tree({'xml': a:xml, 'encoding': ''}, top)
     for node in top.child
@@ -261,6 +263,7 @@ function! xml#parse(xml)
   "catch /.*/
   "endtry
   let &maxmempattern=oldmaxmempattern
+  let &maxfuncdepth=oldmaxfuncdepth
   throw "Parse Error"
 endfunction
 

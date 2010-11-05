@@ -137,9 +137,13 @@ function! xmlrpc#wrap(contexts)
       endif
       let target = target[ns]
     endfor
-    let arglist = substitute(join(map(copy(context.argnames),'"a:".v:val'),','), 'a:\.\.\.', '...', '')
+    if context.arguments[:-1] == '...'
+      let arglist = '[' . join(map(copy(context.argnames[:-2]),'"a:".v:val'),',') . ']+a:000'
+    else
+      let arglist = '[' . join(map(copy(context.argnames),'"a:".v:val'),',') . ']'
+    endif
     exe "function api.".context.name."(".join(context.argnames,",").") dict\n"
-    \.  "  return s:xmlrpc_call(self['.uri'], '".context.name."', [".arglist."])\n"
+    \.  "  return s:xmlrpc_call(self['.uri'], '".context.name."', ".arglist.")\n"
     \.  "endfunction\n"
   endfor
   return api

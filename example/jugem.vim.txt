@@ -12,7 +12,7 @@ let imgurl = api.newMediaObject(jugem_id, jugem_id, password, {
 \ "path": imagePath,
 \})
 
-let text = "どないや<br /><img src=\"".imgurl."\">"
+let text = "どないや<br /><img src=\"".imgurl["url"]."\">"
 
 echo api.newPost(jugem_id, jugem_id, password, {
 \ "title": "vimでmetaWeblogAPIを叩いて画像付きブログをポストする",

@@ -244,6 +244,8 @@ function! s:parse_tree(ctx, top)
     endif
     if tag_match[-2:] != '/>'
       call add(stack, node)
+    else
+      let node.name = node.name[:-2]
     endif
     let a:ctx['xml'] = a:ctx['xml'][stridx(a:ctx['xml'], tag_match) + len(tag_match):]
   endwhile

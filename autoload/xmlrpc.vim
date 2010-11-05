@@ -142,9 +142,15 @@ function! xmlrpc#wrap(contexts)
     else
       let arglist = '[' . join(map(copy(context.argnames),'"a:".v:val'),',') . ']'
     endif
-    exe "function api.".context.name."(".join(context.argnames,",").") dict\n"
-    \.  "  return s:xmlrpc_call(self['.uri'], '".context.name."', ".arglist.")\n"
-    \.  "endfunction\n"
+    if has_key(context, 'alias')
+      exe "function api.".context.alias."(".join(context.argnames,",").") dict\n"
+      \.  "  return s:xmlrpc_call(self['.uri'], '".context.name."', ".arglist.")\n"
+      \.  "endfunction\n"
+    else
+      exe "function api.".context.name."(".join(context.argnames,",").") dict\n"
+      \.  "  return s:xmlrpc_call(self['.uri'], '".context.name."', ".arglist.")\n"
+      \.  "endfunction\n"
+    endif
   endfor
   return api
 endfunction

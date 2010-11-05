@@ -126,17 +126,21 @@ function! s:xmlrpc_call(uri, func, args)
   endif
 endfunction
 
-function! xmlrpc#wrap(uri, name, paramnames)
-  let api = {".uri" : a:uri}
-  let target = api
-  let namespaces = split(a:name, '\.')[:-2]
-  for ns in namespaces
-    let target[ns] = {".uri": a:uri}
-    let target = target[ns]
+function! xmlrpc#wrap(contexts)
+  let api = {}
+  for context in a:contexts
+    let target = api
+    let namespaces = split(context.name, '\.')[:-2]
+    for ns in namespaces
+      if !has_key(target, ns)
+        let target[ns] = {".uri": context.uri}
+      endif
+      let target = target[ns]
+    endfor
+    exe "function api.".context.name."(".join(context.argnames,",").") dict\n"
+    \.  "  return s:xmlrpc_call(self['.uri'], '".context.name."', [".join(map(copy(context.argnames),'"a:".v:val'),",")."])\n"
+    \.  "endfunction\n"
   endfor
-  exe "function api.".a:name."(".join(a:paramnames,",").") dict\n"
-  \.  "  return s:xmlrpc_call(self['.uri'], '".a:name."', a:000)\n"
-  \.  "endfunction\n"
   return api
 endfunction
 

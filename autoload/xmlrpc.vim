@@ -137,7 +137,7 @@ function! xmlrpc#wrap(contexts)
       endif
       let target = target[ns]
     endfor
-    if context.arguments[:-1] == '...'
+    if len(context.argnames) && context.argnames[-1] == '...'
       let arglist = '[' . join(map(copy(context.argnames[:-2]),'"a:".v:val'),',') . ']+a:000'
     else
       let arglist = '[' . join(map(copy(context.argnames),'"a:".v:val'),',') . ']'

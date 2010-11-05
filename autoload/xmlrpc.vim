@@ -48,18 +48,49 @@ endfunction
 
 function! s:to_value(content)
   if type(a:content) == 4
-    let struct = xml#createElement("struct")
-    for key in keys(a:content)
+    if has_key(a:content, 'bits')
+      let struct = xml#createElement("struct")
+
       let member = xml#createElement("member")
+      call add(struct.child, member)
       let name = xml#createElement("name")
-      call name.value(key)
+      call add(member.child, name)
+      call name.value("name")
+      let value = xml#createElement("value")
+      call add(member.child, value)
+      call add(value.child, s:to_value(a:content["name"]))
+
+      let member = xml#createElement("member")
+      call add(struct.child, member)
+      let name = xml#createElement("name")
+      call name.value("bits")
       call add(member.child, name)
       let value = xml#createElement("value")
-      call add(value.child, s:to_value(a:content[key]))
       call add(member.child, value)
-      call add(struct.child, member)
-    endfor
-    return struct
+      let base64 = xml#createElement("base64")
+      call add(value.child, base64)
+      if has_key(a:content, "bits") && len(a:content["bits"])
+        call base64.value(a:content["bits"])
+      elseif has_key(a:content, "path")
+        let quote = &shellxquote == '"' ?  "'" : '"'
+        let bits = substitute(system("xxd -ps ".quote.a:content["path"].quote), "[ \n\r]", '', 'g')
+        call base64.value(base64#b64encodebin(bits))
+      endif
+      return struct
+    else
+      let struct = xml#createElement("struct")
+      for key in keys(a:content)
+        let member = xml#createElement("member")
+        let name = xml#createElement("name")
+        call name.value(key)
+        call add(member.child, name)
+        let value = xml#createElement("value")
+        call add(value.child, s:to_value(a:content[key]))
+        call add(member.child, value)
+        call add(struct.child, member)
+      endfor
+      return struct
+    endif
   elseif type(a:content) == 3
     let array = xml#createElement("array")
     let data = xml#createElement("data")
@@ -114,6 +145,7 @@ function! xmlrpc#call(uri, func, args)
     call value.value(s:to_value(arg))
     call add(param.child, value)
     call add(params.child, param)
+    unlet arg
   endfor
   call add(methodCall.child, params)
   let xml = iconv(methodCall.toString(), &encoding, "utf-8")

@@ -102,7 +102,7 @@ function! s:to_fault(dom)
   return faultCode.":".faultString
 endfunction
 
-function! s:xmlrpc_call(uri, func, args)
+function! xmlrpc#call(uri, func, args)
   let methodCall = xml#createElement("methodCall")
   let methodName = xml#createElement("methodName")
   call methodName.value(a:func)
@@ -144,11 +144,11 @@ function! xmlrpc#wrap(contexts)
     endif
     if has_key(context, 'alias')
       exe "function api.".context.alias."(".join(context.argnames,",").") dict\n"
-      \.  "  return s:xmlrpc_call(self['.uri'], '".context.name."', ".arglist.")\n"
+      \.  "  return xmlrpc#call(self['.uri'], '".context.name."', ".arglist.")\n"
       \.  "endfunction\n"
     else
       exe "function api.".context.name."(".join(context.argnames,",").") dict\n"
-      \.  "  return s:xmlrpc_call(self['.uri'], '".context.name."', ".arglist.")\n"
+      \.  "  return xmlrpc#call(self['.uri'], '".context.name."', ".arglist.")\n"
       \.  "endfunction\n"
     endif
   endfor

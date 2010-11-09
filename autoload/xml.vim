@@ -200,7 +200,7 @@ function! s:parse_tree(ctx, top)
   endif
   let mx = '\(<[^>]\+>\)'
 
-  let tag_mx = '<\([^ \t\r\n>]*\)\(\%(\s*[^ >\t\r\n=]\+\s*=\s*\%([^"'' >\t]\+\|["''][^"'']*["'']\)\s*\)*\)\s*/*>'
+  let tag_mx = '<\([^ \t\r\n>]*\)\(\%(\s*[^ >\t\r\n=]\+\s*=\s*\%([^"'' >\t]\+\|"[^"]*"\|''[^'']*''\)[ \t\r\n]*\)*\)[ \t\r\n]*/*>'
   while len(a:ctx['xml']) > 0
     let tag_match = matchstr(a:ctx['xml'], tag_mx)
     if len(tag_match) == 0
@@ -271,6 +271,10 @@ function! xml#parse(xml)
   let &maxmempattern=oldmaxmempattern
   let &maxfuncdepth=oldmaxfuncdepth
   throw "Parse Error"
+endfunction
+
+function! xml#parseFile(fname)
+  return xml#parse(join(readfile(a:fname), "\n"))
 endfunction
 
 function! xml#parseURL(url)

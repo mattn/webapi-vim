@@ -225,7 +225,10 @@ function! s:parse_tree(ctx, top)
     endif
 
     let node = deepcopy(s:template)
-    let node.name = substitute(tag_match, tag_mx, '\1', 'i')
+    let node.name = tag_name
+    if node.name[-1:] == '/'
+      let node.name = node.name[:-2]
+    endif
     let attrs = substitute(tag_match, tag_mx, '\2', 'i')
     let attr_mx = '\([^ \t\r\n=]\+\)\s*=\s*["'']\{0,1}\([^"''>\t]\+\)["'']\{0,1}'
     while len(attrs) > 0
@@ -244,8 +247,6 @@ function! s:parse_tree(ctx, top)
     endif
     if tag_match[-2:] != '/>'
       call add(stack, node)
-    else
-      let node.name = node.name[:-2]
     endif
     let a:ctx['xml'] = a:ctx['xml'][stridx(a:ctx['xml'], tag_match) + len(tag_match):]
   endwhile

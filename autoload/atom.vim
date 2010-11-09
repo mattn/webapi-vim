@@ -64,6 +64,13 @@ for s:name in ['author', 'link', 'category', 'feed', 'entry']
     \. "endfunction\n"
   endfor
 endfor
+function s:entry_template.setContentFromFile(file) dict
+  let quote = &shellxquote == '"' ?  "'" : '"'
+  let bits = substitute(system("xxd -ps ".quote.file.quote), "[ \n\r]", '', 'g')
+  let self['mode'] = "base64"
+  let self['content'] = base64#b64encodebin(bits)
+endfunction
+
 unlet s:name
 unlet s:key
 

@@ -185,6 +185,9 @@ function! s:parse_tree(ctx, top)
   let node = a:top
   let stack = [a:top]
   let pos = 0
+  " content accumulates the text only tags
+  let content = ""
+  let append_content_to_parent = 'call add(stack[-1].child, content) | let content =""'
 
   let mx = '^\s*\(<?xml[^>]\+>\)'
   if a:ctx['xml'] =~ mx
@@ -200,36 +203,50 @@ function! s:parse_tree(ctx, top)
   endif
   let mx = '\(<[^>]\+>\)'
 
-  let tag_mx = '<\([^ \t\r\n>]*\)\(\%(\s*[^ >\t\r\n=]\+\s*=\s*\%([^"'' >\t]\+\|"[^"]*"\|''[^'']*''\)[ \t\r\n]*\)*\)[ \t\r\n]*/*>'
+  " this regex matches
+  " 1) the remaining until the next tag begins
+  "    2) maybe closing "/" of tag name
+  "    3)  tagname
+  "    4) the attributes of the text (optional)
+  "    5) maybe closing "/" (end of tag name)
+  " or
+  "    6) CDATA text
+  " 7) the remaining text after the tag (rest)
+  " (These numbers correspond to the indexes in matched list m)
+  let tag_mx = '^\(\_.\{-}\)\%(\%(<\(/\?\)\([^ !/\t\r\n>]\+\)\(\%([ \t\r\n]*[^ >\t\r\n=]\+[ \t\r\n]*=[ \t\r\n]*\%([^"'' >\t]\+\|"[^"]*"\|''[^'']*''\)\)*\)[ \t\r\n]*\(/\?\)>\)\|\%(<!\[CDATA\[\(.\{-}\)\]\]>\)\)\(.*\)'
+
   while len(a:ctx['xml']) > 0
-    let tag_match = matchstr(a:ctx['xml'], tag_mx)
-    if len(tag_match) == 0
-      break
+    let m = matchlist(a:ctx.xml, tag_mx)
+    if empty(m) | break | endif
+    let is_end_tag = m[2] == '/' && m[5] == ''
+    let is_start_and_end_tag = m[2] == '' && m[5] == '/'
+    let tag_name = m[3]
+    let attrs = m[4]
+
+    if len(m[1])
+      let content .= s:decodeEntityReference(m[1])
     endif
 
-    let tag_name = substitute(tag_match, tag_mx, '\1', 'i')
-    if tag_name[0] == '/'
-      let pos = stridx(a:ctx['xml'], tag_match)
-      if pos > 0 && len(stack)
-        call add(stack[-1].child, s:decodeEntityReference(a:ctx['xml'][:stridx(a:ctx['xml'], tag_match) - 1]))
-      endif
+    if is_end_tag
+      " closing tag: pop from stack and continue at upper level
+      exec append_content_to_parent
+
       if len(stack) " TODO: checking whether opened tag is exist. 
         call remove(stack, -1)
       endif
-      let a:ctx['xml'] = a:ctx['xml'][stridx(a:ctx['xml'], tag_match) + len(tag_match):]
+      let a:ctx['xml'] = m[7]
       continue
     endif
-    let pos = stridx(a:ctx['xml'], tag_match)
-    if pos > 0 && len(stack)
-      call add(stack[-1].child, s:decodeEntityReference(a:ctx['xml'][:pos - 1]))
+
+    " if element is a CDATA
+    if m[6] != ''
+        let content .= m[6]
+        let a:ctx.xml = m[7]
+        continue
     endif
 
     let node = deepcopy(s:template)
     let node.name = tag_name
-    if node.name[-1:] == '/'
-      let node.name = node.name[:-2]
-    endif
-    let attrs = substitute(tag_match, tag_mx, '\2', 'i')
     let attr_mx = '\([^ \t\r\n=]\+\)\s*=\s*["'']\{0,1}\([^"''>\t]\+\)["'']\{0,1}'
     while len(attrs) > 0
       let attr_match = matchstr(attrs, attr_mx)
@@ -242,13 +259,16 @@ function! s:parse_tree(ctx, top)
       let attrs = attrs[stridx(attrs, attr_match) + len(attr_match):]
     endwhile
 
+    exec append_content_to_parent
+
     if len(stack)
       call add(stack[-1].child, node)
     endif
-    if tag_match[-2:] != '/>'
+    if !is_start_and_end_tag
+      " opening tag, continue parsing its contents
       call add(stack, node)
     endif
-    let a:ctx['xml'] = a:ctx['xml'][stridx(a:ctx['xml'], tag_match) + len(tag_match):]
+    let a:ctx['xml'] = m[7]
   endwhile
 endfunction
 

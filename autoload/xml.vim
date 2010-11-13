@@ -187,7 +187,7 @@ function! s:parse_tree(ctx, top)
   let pos = 0
   " content accumulates the text only tags
   let content = ""
-  let append_content_to_parent = 'call add(stack[-1].child, content) | let content =""'
+  let append_content_to_parent = 'if content != "" | call add(stack[-1].child, content) | let content ="" | endif'
 
   let mx = '^\s*\(<?xml[^>]\+>\)'
   if a:ctx['xml'] =~ mx

@@ -53,6 +53,19 @@ function! html#encodeEntityReference(str)
   return str
 endfunction
 
+function! html#parse(html)
+  let html = substitute(a:html, '<\(area\|base\|basefont\|br\|col\|frame\|hr\|img\|input\|isindex\|link\|meta\|param\|embed\|keygen\|command\)\([^>]*\)>', '<\1\2/>', 'g')
+  return xml#parse(html)
+endfunction
+
+function! html#parseFile(fname)
+  return html#parse(join(readfile(a:fname), "\n"))
+endfunction
+
+function! html#parseURL(url)
+  return html#parse(http#get(a:url).content)
+endfunction
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
 

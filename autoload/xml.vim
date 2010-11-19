@@ -154,7 +154,7 @@ endfunction
 function! s:template.toString() dict
   let xml = '<' . self.name
   for attr in keys(self.attr)
-    let xml .= ' ' . attr . '="' . self.attr[attr] . '"'
+    let xml .= ' ' . attr . '="' . s:encodeEntityReference(self.attr[attr]) . '"'
   endfor
   if len(self.child)
     let xml .= '>'
@@ -255,7 +255,7 @@ function! s:parse_tree(ctx, top)
       endif
       let name = substitute(attr_match, attr_mx, '\1', 'i')
       let value = substitute(attr_match, attr_mx, '\2', 'i')
-      let node.attr[name] = value
+      let node.attr[name] = s:decodeEntityReference(value)
       let attrs = attrs[stridx(attrs, attr_match) + len(attr_match):]
     endwhile
 

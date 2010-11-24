@@ -178,8 +178,8 @@ function! http#post(url, ...)
   endfor
   let command .= " ".quote.url.quote
   let file = tempname()
-  call writefile(split(postdatastr, "\n"), file)
-  let res = system(command . " -d @" . quote.file.quote)
+  call writefile(split(postdatastr, "\n"), file, "b")
+  let res = system(command . " --data-binary @" . quote.file.quote)
   call delete(file)
   if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established'
     let pos = stridx(res, "\r\n\r\n")

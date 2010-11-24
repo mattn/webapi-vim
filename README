@@ -8,12 +8,18 @@ Description:
     * OAuth
     * Atompub
     * SOAP (in progress)
+    * XMLRPC
+    * MetaWeblog API
 
-    This library include:
+    This library contains:
         XML Parser
+        HTML Parser(Hack Way)
+        JSON Praser
         BASE64 Hash Algorism
         SHA1 Hash Algorism
         HMAC HASH Algorism
+        Bit Operation Library
+        Converter for "UTF-8 to Unicode"
 
 Require:
 

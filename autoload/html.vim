@@ -54,7 +54,7 @@ function! html#encodeEntityReference(str)
 endfunction
 
 function! html#parse(html)
-  let html = substitute(a:html, '<\(area\|base\|basefont\|br\|col\|frame\|hr\|img\|input\|isindex\|link\|meta\|param\|embed\|keygen\|command\)\([^>]*\)>', '<\1\2/>', 'g')
+  let html = substitute(a:html, '<\(area\|base\|basefont\|br\|col\|frame\|hr\|img\|input\|isindex\|link\|meta\|param\|embed\|keygen\|command\)\([^/>]*\)/>', '<\1\2/>', 'g')
   return xml#parse(html)
 endfunction
 

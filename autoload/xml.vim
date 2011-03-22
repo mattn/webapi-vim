@@ -203,7 +203,6 @@ function! s:parse_tree(ctx, top)
       let a:ctx['xml'] = iconv(a:ctx['xml'], encoding, &encoding)
     endif
   endif
-  let mx = '\(<[^>]\+>\)'
 
   " this regex matches
   " 1) the remaining until the next tag begins
@@ -216,7 +215,7 @@ function! s:parse_tree(ctx, top)
   "    7) text content of CDATA
   " 8) the remaining text after the tag (rest)
   " (These numbers correspond to the indexes in matched list m)
-  let tag_mx = '^\(\_.\{-}\)\%(\%(<\(/\?\)\([^ !/\t\r\n>]\+\)\(\%([ \t\r\n]*[^ >\t\r\n=]\+[ \t\r\n]*=[ \t\r\n]*\%([^"'' >\t]\+\|"[^"]*"\|''[^'']*''\)\)*\)[ \t\r\n]*\(/\?\)>\)\|\%(<!\[\(CDATA\)\[\(.\{-}\)\]\]>\)\)\(.*\)'
+  let tag_mx = '^\(\_.\{-}\)\%(\%(<\(/\?\)\([^ !/\t\r\n>]\+\)\(\%([ \t\r\n]*[^ >\t\r\n=]\+[ \t\r\n]*=[ \t\r\n]*\%([^"'' >\t]\+\|"[^"]*"\|''[^'']*''\)\)*\)[ \t\r\n]*\(/\?\)>\)\|\%(<!\[\(CDATA\)\[\(.\{-}\)\]\]>\)\|\%(<!--.\{-}-->\)\)\(.*\)'
 
   while len(a:ctx['xml']) > 0
     let m = matchlist(a:ctx.xml, tag_mx)

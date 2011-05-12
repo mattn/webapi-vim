@@ -30,6 +30,7 @@ endfunction
 
 function! json#decode(json)
   let json = iconv(a:json, "utf-8", &encoding)
+  let json = substitute(json, '\n', '', 'g')
   let json = substitute(json, '\\u34;', '\\"', 'g')
   let json = substitute(json, '\\u\(\x\x\x\x\)', '\=s:nr2enc_char("0x".submatch(1))', 'g')
   let [null,true,false] = [0,1,0]
@@ -37,7 +38,10 @@ function! json#decode(json)
 endfunction
 
 function! json#encode(obj)
-  return string(a:obj)
+  let json = string(a:obj)
+  let json = substitute(json, '''''', '\\''', 'g')
+  let json = iconv(json, &encoding, "utf-8")
+  return json
 endfunction
 
 let &cpo = s:save_cpo

@@ -40,6 +40,9 @@ endfunction
 function! json#encode(obj)
   let json = string(a:obj)
   let json = substitute(json, '''''', '\\''', 'g')
+  let json = substitute(json, "\r", '\\r', 'g')
+  let json = substitute(json, "\n", '\\n', 'g')
+  let json = substitute(json, "\t", '\\t', 'g')
   let json = iconv(json, &encoding, "utf-8")
   return json
 endfunction

@@ -39,7 +39,11 @@ endfunction
 
 function! json#encode(obj)
   let json = string(a:obj)
-  let json = substitute(json, '''''', '\\''', 'g')
+  if type(a:obj) == 1
+    let json = ''''.substitute(json[1:-2], '''''', '\\''', 'g').''''
+  else
+    let json = substitute(json, '''''', '\\''', 'g')
+  endif
   let json = substitute(json, "\r", '\\r', 'g')
   let json = substitute(json, "\n", '\\n', 'g')
   let json = substitute(json, "\t", '\\t', 'g')

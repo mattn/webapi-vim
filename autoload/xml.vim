@@ -256,19 +256,19 @@ function! s:parse_tree(ctx, top)
 
     let node = deepcopy(s:template)
     let node.name = tag_name
-    let attr_mx = '\([^ \t\r\n=]\+\)\s*\%(=\s*["'']\{0,1}\([^"''>\t]\+\)["'']\{0,1}\|\)'
+    let attr_mx = '\([^ \t\r\n=]\+\)\s*\%(=\s*''\([^'']*\)''\|=\s*"\([^"]*\)"\|=\s*\(\w\+\)\|\)'
     while len(attrs) > 0
-      let attr_match = matchstr(attrs, attr_mx)
+      let attr_match = matchlist(attrs, attr_mx)
       if len(attr_match) == 0
         break
       endif
-      let name = substitute(attr_match, attr_mx, '\1', 'i')
-      let value = substitute(attr_match, attr_mx, '\2', 'i')
+      let name = attr_match[1]
+      let value = len(attr_match[2]) ? attr_match[2] : len(attr_match[3]) ? attr_match[3] : len(attr_match[4]) ? attr_match[4] : ""
       if value == ""
         let value = name
       endif
       let node.attr[name] = s:decodeEntityReference(value)
-      let attrs = attrs[stridx(attrs, attr_match) + len(attr_match):]
+      let attrs = attrs[stridx(attrs, attr_match[0]) + len(attr_match[0]):]
     endwhile
 
     exec append_content_to_parent

@@ -196,11 +196,13 @@ function! s:parse_tree(ctx, top)
     let match = matchstr(a:ctx['xml'], mx)
     let a:ctx['xml'] = a:ctx['xml'][stridx(a:ctx['xml'], match) + len(match):]
     let mx = 'encoding\s*=\s*["'']\{0,1}\([^"'' \t]\+\|[^"'']\+\)["'']\{0,1}'
-    let match = matchstr(match, mx)
-    let encoding = substitute(match, mx, '\1', '')
-    if len(encoding) && len(a:ctx['encoding']) == 0
-      let a:ctx['encoding'] = encoding
-      let a:ctx['xml'] = iconv(a:ctx['xml'], encoding, &encoding)
+    let matches = matchlist(match, mx)
+    if len(matches)
+      let encoding = matches[1]
+      if len(encoding) && len(a:ctx['encoding']) == 0
+        let a:ctx['encoding'] = encoding
+        let a:ctx['xml'] = iconv(a:ctx['xml'], encoding, &encoding)
+      endif
     endif
   endif
 

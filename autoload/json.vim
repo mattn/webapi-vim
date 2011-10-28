@@ -34,7 +34,8 @@ function! json#decode(json)
   let json = substitute(json, '\\u34;', '\\"', 'g')
   let json = substitute(json, '\\u\(\x\x\x\x\)', '\=s:nr2enc_char("0x".submatch(1))', 'g')
   let [null,true,false] = [0,1,0]
-  return eval(json)
+  sandbox let ret = eval(json)
+  return ret
 endfunction
 
 function! json#encode(obj)

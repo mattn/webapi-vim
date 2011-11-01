@@ -38,18 +38,22 @@ function! json#decode(json)
   return ret
 endfunction
 
-function! json#encode(obj)
-  let json = string(a:obj)
-  if type(a:obj) == 1
-    let json = ''''.substitute(json[1:-2], '''''', '\\''', 'g').''''
+function! json#encode(val)
+  if type(a:val) == 0
+    return a:val
+  elseif type(a:val) == 1
+    let json = '"' . escape(a:val, '"') . '"'
+    let json = substitute(json, "\r", '\\r', 'g')
+    let json = substitute(json, "\n", '\\n', 'g')
+    let json = substitute(json, "\t", '\\t', 'g')
+    return iconv(json, &encoding, "utf-8")
+  elseif type(a:val) == 3
+    return '[' . join(map(copy(a:val), 'json#encode(v:val)'), ',') . ']'
+  elseif type(a:val) == 4
+    return '{' . join(map(keys(a:val), 'json#encode(v:val).":".json#encode(a:val[v:val])'), ',') . '}'
   else
-    let json = substitute(json, '''''', '\\''', 'g')
+    return string(a:val)
   endif
-  let json = substitute(json, "\r", '\\r', 'g')
-  let json = substitute(json, "\n", '\\n', 'g')
-  let json = substitute(json, "\t", '\\t', 'g')
-  let json = iconv(json, &encoding, "utf-8")
-  return json
 endfunction
 
 let &cpo = s:save_cpo

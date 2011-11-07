@@ -79,15 +79,27 @@ function! oauth#get(url, ctx, ...)
   let query["oauth_timestamp"] = time_stamp
   let query["oauth_token"] = a:ctx.access_token
   let query["oauth_version"] = "1.0"
-  for key in keys(params)
-    let query[key] = params[key]
-  endfor
+  if type(params) == 4
+    for key in keys(params)
+      let query[key] = params[key]
+    endfor
+  endif
+  if type(getdata) == 4
+    for key in keys(getdata)
+      let query[key] = getdata[key]
+    endfor
+  endif
   let query_string = query["oauth_request_method"] . "&"
   let query_string .= http#encodeURI(a:url)
   let query_string .= "&"
   let query_string .= http#encodeURI(http#encodeURI(query))
   let hmacsha1 = hmac#sha1(http#encodeURI(a:ctx.consumer_secret) . "&" . http#encodeURI(a:ctx.access_token_secret), query_string)
   let query["oauth_signature"] = base64#b64encodebin(hmacsha1)
+  if type(getdata) == 4
+    for key in keys(getdata)
+      call remove(query, key)
+    endfor
+  endif
   let auth = 'OAuth '
   for key in sort(keys(query))
     let auth .= key . '="' . http#encodeURI(query[key]) . '", '

@@ -43,6 +43,10 @@ function hmac#sha1(key, txt)
 endfunction
 
 function! s:sha1_ruby(key, txt)
+  if !has('ruby')
+    return ''
+  endif
+  try
 ruby << EOF
   require 'openssl'
   key = VIM.evaluate("a:key")
@@ -51,13 +55,17 @@ ruby << EOF
   result = OpenSSL::HMAC.hexdigest(digest, key, txt)
   VIM.command("let ret = '#{result}'")
 EOF
-  return ret
+    return ret
+  catch
+    return ''
+  endtry
 endfunction
 
 function s:sha1_python(key, txt)
   if !has('python')
     return ''
   endif
+  try
   python << EOF
 import vim
 import hashlib
@@ -67,13 +75,17 @@ txt = vim.eval('a:txt')
 hex = hmac.new(key, txt, hashlib.sha1).hexdigest()
 vim.command('let ret = "{0}"'.format(hex))
 EOF
-  return ret
+    return ret
+  catch
+    return ''
+  endtry
 endfunction
 
 function! s:sha1_perl(key, txt)
   if !has('perl')
     return ''
   endif
+  try
 perl << EOF
   # http://adiary.blog.abk.nu/0274
   # license : PDS
@@ -96,7 +108,10 @@ perl << EOF
 	my $b64d = $sha1->hexdigest;
   VIM::DoCommand('let ret = "' . $b64d . '"');
 EOF
-	return ret
+	  return ret
+  catch
+    return ''
+  endtry
 
 endfunction
 

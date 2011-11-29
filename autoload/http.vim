@@ -119,13 +119,13 @@ endfunction
 function! http#get(url, ...)
   let getdata = a:0 > 0 ? a:000[0] : {}
   let headdata = a:0 > 1 ? a:000[1] : {}
-  let curlextra = a:0 > 2 ? a:000[2] : ""
+  let commandextra = a:0 > 2 ? a:000[2] : ""
   let url = a:url
   let getdatastr = http#encodeURI(getdata)
   if strlen(getdatastr)
     let url .= "?" . getdatastr
   endif
-  let command = 'curl -L -s -k -i '.curlextra
+  let command = 'curl -L -s -k -i '.commandextra
   let quote = &shellxquote == '"' ?  "'" : '"'
   for key in keys(headdata)
     if has('win32')
@@ -162,14 +162,14 @@ function! http#post(url, ...)
   let postdata = a:0 > 0 ? a:000[0] : {}
   let headdata = a:0 > 1 ? a:000[1] : {}
   let method = a:0 > 2 ? a:000[2] : "POST"
-  let curlextra = a:0 > 3 ? a:000[3] : ""
+  let commandextra = a:0 > 3 ? a:000[3] : ""
   let url = a:url
   if type(postdata) == 4
     let postdatastr = http#encodeURI(postdata)
   else
     let postdatastr = postdata
   endif
-  let command = 'curl -L -s -k -i '.curlextra.' -X '.metho3
+  let command = 'curl -L -s -k -i '.commandextra.' -X '.metho3
   let quote = &shellxquote == '"' ?  "'" : '"'
   for key in keys(headdata)
     if has('win32')

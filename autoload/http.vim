@@ -119,23 +119,36 @@ endfunction
 function! http#get(url, ...)
   let getdata = a:0 > 0 ? a:000[0] : {}
   let headdata = a:0 > 1 ? a:000[1] : {}
-  let commandextra = a:0 > 2 ? a:000[2] : ""
   let url = a:url
   let getdatastr = http#encodeURI(getdata)
   if strlen(getdatastr)
     let url .= "?" . getdatastr
   endif
-  let command = 'curl -L -s -k -i '.commandextra
-  let quote = &shellxquote == '"' ?  "'" : '"'
-  for key in keys(headdata)
-    if has('win32')
-      let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
-    else
-      let command .= " -H " . quote . key . ": " . headdata[key] . quote
-	endif
-  endfor
-  let command .= " ".quote.url.quote
-  let res = system(command)
+  if executable('curl')
+    let command = 'curl -L -s -k -i '
+    let quote = &shellxquote == '"' ?  "'" : '"'
+    for key in keys(headdata)
+      if has('win32')
+        let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
+      else
+        let command .= " -H " . quote . key . ": " . headdata[key] . quote
+	  endif
+    endfor
+    let command .= " ".quote.url.quote
+    let res = system(command)
+  elseif executable('wget')
+    let command = 'wget -O- --save-headers --server-response -q -L '
+    let quote = &shellxquote == '"' ?  "'" : '"'
+    for key in keys(headdata)
+      if has('win32')
+        let command .= " --header=" . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
+      else
+        let command .= " --header=" . quote . key . ": " . headdata[key] . quote
+	  endif
+    endfor
+    let command .= " ".quote.url.quote
+    let res = system(command)
+  endif
   if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established'
     let pos = stridx(res, "\r\n\r\n")
     if pos != -1
@@ -162,26 +175,42 @@ function! http#post(url, ...)
   let postdata = a:0 > 0 ? a:000[0] : {}
   let headdata = a:0 > 1 ? a:000[1] : {}
   let method = a:0 > 2 ? a:000[2] : "POST"
-  let commandextra = a:0 > 3 ? a:000[3] : ""
   let url = a:url
   if type(postdata) == 4
     let postdatastr = http#encodeURI(postdata)
   else
     let postdatastr = postdata
   endif
-  let command = 'curl -L -s -k -i '.commandextra.' -X '.metho3
-  let quote = &shellxquote == '"' ?  "'" : '"'
-  for key in keys(headdata)
-    if has('win32')
-      let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
-    else
-      let command .= " -H " . quote . key . ": " . headdata[key] . quote
-	endif
-  endfor
-  let command .= " ".quote.url.quote
-  let file = tempname()
-  call writefile(split(postdatastr, "\n"), file, "b")
-  let res = system(command . " --data-binary @" . quote.file.quote)
+  if executable('curl')
+    let command = 'curl -L -s -k -i -X '.method
+    let quote = &shellxquote == '"' ?  "'" : '"'
+    for key in keys(headdata)
+      if has('win32')
+        let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
+      else
+        let command .= " -H " . quote . key . ": " . headdata[key] . quote
+	  endif
+    endfor
+    let command .= " ".quote.url.quote
+    let file = tempname()
+    call writefile(split(postdatastr, "\n"), file, "b")
+    let res = system(command . " --data-binary @" . quote.file.quote)
+  elseif executable('wget')
+    let command = 'wget -O- --save-headers --server-response -q -L '
+    let headdata['X-HTTP-Method-Override'] = method
+    let quote = &shellxquote == '"' ?  "'" : '"'
+    for key in keys(headdata)
+      if has('win32')
+        let command .= " --header=" . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
+      else
+        let command .= " --header=" . quote . key . ": " . headdata[key] . quote
+	  endif
+    endfor
+    let command .= " ".quote.url.quote
+    let file = tempname()
+    call writefile(split(postdatastr, "\n"), file, "b")
+    let res = system(command . " --post-data @" . quote.file.quote)
+  endif
   call delete(file)
   if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established'
     let pos = stridx(res, "\r\n\r\n")

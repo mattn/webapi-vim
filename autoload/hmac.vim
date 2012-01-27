@@ -20,6 +20,10 @@ endfunction
 
 function hmac#sha1(key, txt)
 
+  if exists('s:sha1_method')
+    return call(s:sha1_method, [a:key, a:txt])
+  endif
+
   let ret = s:sha1_ruby(a:key, a:txt)
   if ret != ''
     let s:sha1_method = 's:sha1_ruby'

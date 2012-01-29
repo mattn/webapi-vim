@@ -59,7 +59,8 @@ endfunction
 function! http#decodeURI(str)
   let ret = a:str
   let ret = substitute(ret, '+', ' ', 'g')
-  let ret = substitute(ret, '%\(\x\x\)', '\=nr2char("0x".submatch(1))', 'g')
+  "let ret = substitute(ret, '%\(\x\x\)', '\=nr2char("0x".submatch(1))', 'g')
+  let ret = eval('"'.substitute(ret, '%\(\x\x\)', '\="\\x".submatch(1)', 'g').'"')
   return ret
 endfunction
 

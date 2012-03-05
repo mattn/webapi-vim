@@ -163,12 +163,14 @@ function! xmlrpc#wrap(contexts)
   for context in a:contexts
     let target = api
     let namespaces = split(context.name, '\.')[:-2]
-    for ns in namespaces
-      if !has_key(target, ns)
-        let target[ns] = {".uri": context.uri}
-      endif
-      let target = target[ns]
-    endfor
+    if len(namespaces) > 0
+      for ns in namespaces
+        if !has_key(target, ns)
+          let target[ns] = {".uri": context.uri}
+        endif
+        let target = target[ns]
+      endfor
+    endif
     if len(context.argnames) && context.argnames[-1] == '...'
       let arglist = '[' . join(map(copy(context.argnames[:-2]),'"a:".v:val'),',') . ']+a:000'
     else
@@ -180,7 +182,7 @@ function! xmlrpc#wrap(contexts)
       \.  "endfunction\n"
     else
       exe "function api.".context.name."(".join(context.argnames,",").") dict\n"
-      \.  "  return xmlrpc#call(self['.uri'], '".context.name."', ".arglist.")\n"
+      \.  "  return xmlrpc#call('".context.uri."', '".context.name."', ".arglist.")\n"
       \.  "endfunction\n"
     endif
   endfor

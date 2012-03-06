@@ -8,6 +8,22 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+if !exists('g:xmlrpc#allow_nil')
+  let g:xmlrpc#allow_nil = 0
+endif
+
+function! xmlrpc#nil()
+  return 0
+endfunction
+
+function! xmlrpc#true()
+  return 1
+endfunction
+
+function! xmlrpc#false()
+  return 0
+endfunction
+
 function! s:from_value(value)
   let value = a:value
   if value.name == 'methodResponse'
@@ -40,6 +56,9 @@ function! s:from_value(value)
     endfor
     return ret
   elseif value.name == 'nil'
+    if g:xmlrpc#allow_nil
+      return function('xmlrpc#nil')
+    endif
     return 0
   else
     throw "unknown type: ".value.name
@@ -101,6 +120,18 @@ function! s:to_value(content)
     endfor
     call add(array.child, data)
     return array
+  elseif type(a:content) == 2
+    if a:content == function('xmlrpc#true')
+      let true = xml#createElement("boolean")
+      call true.value('true')
+      return true
+    elseif a:content == function('xmlrpc#false')
+      let false = xml#createElement("boolean")
+      call false.value('false')
+      return false
+    else
+      return xml#createElement("nil")
+    endif
   elseif type(a:content) <= 1 || type(a:content) == 5
     if type(a:content) == 0
       let int = xml#createElement("int")

@@ -170,13 +170,13 @@ function! xmlrpc#call(uri, func, args)
   call methodName.value(a:func)
   call add(methodCall.child, methodName)
   let params = xml#createElement("params")
-  for arg in a:args
+  for Arg in a:args
     let param = xml#createElement("param")
     let value = xml#createElement("value")
-    call value.value(s:to_value(arg))
+    call value.value(s:to_value(Arg))
     call add(param.child, value)
     call add(params.child, param)
-    unlet arg
+    unlet Arg
   endfor
   call add(methodCall.child, params)
   let xml = iconv(methodCall.toString(), &encoding, "utf-8")

@@ -126,25 +126,27 @@ function! http#get(url, ...)
   endif
   if executable('curl')
     let command = 'curl -L -s -k -i '
+    let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(headdata)
       if has('win32')
-        let command .= " -H " . shellescape(key . ": " . substitute(headdata[key], '"', '"""', 'g'))
+        let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
       else
-        let command .= " -H " . shellescape(key . ": " . headdata[key])
+        let command .= " -H " . quote . key . ": " . headdata[key] . quote
 	  endif
     endfor
-    let command .= " ".shellescape(url)
+    let command .= " ".quote.url.quote
     let res = system(command)
   elseif executable('wget')
     let command = 'wget -O- --save-headers --server-response -q -L '
+    let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(headdata)
       if has('win32')
-        let command .= " --header=" . shellescape(key . ": " . substitute(headdata[key], '"', '"""', 'g'))
+        let command .= " --header=" . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
       else
-        let command .= " --header=" . shellescape(key . ": " . headdata[key])
+        let command .= " --header=" . quote . key . ": " . headdata[key] . quote
 	  endif
     endfor
-    let command .= " ".shellescape(url)
+    let command .= " ".quote.url.quote
     let res = system(command)
   endif
   if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established'
@@ -181,31 +183,33 @@ function! http#post(url, ...)
   endif
   if executable('curl')
     let command = 'curl -L -s -k -i -X '.method
+    let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(headdata)
       if has('win32')
-        let command .= " -H " . shellescape(key . ": " . substitute(headdata[key], '"', '"""', 'g'))
+        let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
       else
-        let command .= " -H " . shellescape(key . ": " . headdata[key])
+        let command .= " -H " . quote . key . ": " . headdata[key] . quote
 	  endif
     endfor
-    let command .= " ".shellescape(url)
+    let command .= " ".quote.url.quote
     let file = tempname()
     call writefile(split(postdatastr, "\n"), file, "b")
-    let res = system(command . " --data-binary @" . shellescape(file))
+    let res = system(command . " --data-binary @" . quote.file.quote)
   elseif executable('wget')
     let command = 'wget -O- --save-headers --server-response -q -L '
     let headdata['X-HTTP-Method-Override'] = method
+    let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(headdata)
       if has('win32')
-        let command .= " --header=" . shellescape(key . ": " . substitute(headdata[key], '"', '"""', 'g'))
+        let command .= " --header=" . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
       else
-        let command .= " --header=" . shellescape(key . ": " . headdata[key])
+        let command .= " --header=" . quote . key . ": " . headdata[key] . quote
 	  endif
     endfor
-    let command .= " ".shellescape(url)
+    let command .= " ".quote.url.quote
     let file = tempname()
     call writefile(split(postdatastr, "\n"), file, "b")
-    let res = system(command . " --post-data @" . shellescape(file))
+    let res = system(command . " --post-data @" . quote.file.quote)
   endif
   call delete(file)
   if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established'

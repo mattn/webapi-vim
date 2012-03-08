@@ -27,7 +27,10 @@ function! jsonrpc#call(uri, func, args)
       throw err
     endif
   endif
-  return obj.result
+  if has_key(obj, 'result')
+    return obj.result
+  endif
+  throw "Parse Error"
 endfunction
 
 function! jsonrpc#wrap(contexts)

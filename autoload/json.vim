@@ -7,8 +7,8 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('g:json#allow_nil')
-  let g:json#allow_nil = 0
+if !exists('g:json#allow_null')
+  let g:json#allow_null = 0
 endif
 
 function! json#nil()
@@ -49,7 +49,7 @@ function! json#decode(json)
   let json = substitute(json, '\n', '', 'g')
   let json = substitute(json, '\\u34;', '\\"', 'g')
   let json = substitute(json, '\\u\(\x\x\x\x\)', '\=s:nr2enc_char("0x".submatch(1))', 'g')
-  if g:json#allow_nil
+  if g:json#allow_null
     let [null,true,false] = [
     \ function('json#null'),
     \ function('json#true'),

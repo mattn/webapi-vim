@@ -124,10 +124,6 @@ function! http#get(url, ...)
   if strlen(getdatastr)
     let url .= "?" . getdatastr
   endif
-  let old_shellredir = &shellredir
-  if &shell =~ "\\(ba\\|k\\|z\\)\\?sh"
-    set shellredir =>%s\ 2>/dev/tty
-  endif
   if executable('curl')
     let command = 'curl -L -s -k -i '
     let quote = &shellxquote == '"' ?  "'" : '"'
@@ -153,7 +149,6 @@ function! http#get(url, ...)
     let command .= " ".quote.url.quote
     let res = system(command)
   endif
-  let &shellredir = old_shellredir
   if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established'
     let pos = stridx(res, "\r\n\r\n")
     if pos != -1
@@ -186,10 +181,6 @@ function! http#post(url, ...)
   else
     let postdatastr = postdata
   endif
-  let old_shellredir = &shellredir
-  if &shell =~ "\\(ba\\|k\\|z\\)\\?sh"
-    set shellredir =>%s\ 2>/dev/tty
-  endif
   if executable('curl')
     let command = 'curl -L -s -k -i -X '.method
     let quote = &shellxquote == '"' ?  "'" : '"'
@@ -220,7 +211,6 @@ function! http#post(url, ...)
     call writefile(split(postdatastr, "\n"), file, "b")
     let res = system(command . " --post-data @" . quote.file.quote)
   endif
-  let &shellredir = old_shellredir
   call delete(file)
   if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established'
     let pos = stridx(res, "\r\n\r\n")

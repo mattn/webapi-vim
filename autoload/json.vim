@@ -59,9 +59,9 @@ function! s:fixup(val, tmp)
   elseif type(a:val) == 2
     return a:val
   elseif type(a:val) == 3
-    return '[' . join(map(copy(a:val), 's:fixup(v:val)'), ',') . ']'
+    return '[' . join(map(copy(a:val), 's:fixup(v:val, a:tmp)'), ',') . ']'
   elseif type(a:val) == 4
-    return '{' . join(map(keys(a:val), 's:fixup(v:val).":".s:fixup(a:val[v:val])'), ',') . '}'
+    return '{' . join(map(keys(a:val), 's:fixup(v:val, a:tmp).":".s:fixup(a:val[v:val], a:tmp)'), ',') . '}'
   else
     return string(a:val)
   endif

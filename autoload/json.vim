@@ -11,7 +11,7 @@ if !exists('g:json#allow_null')
   let g:json#allow_null = 0
 endif
 
-function! json#nil()
+function! json#null()
   return 0
 endfunction
 
@@ -44,20 +44,52 @@ function! s:nr2enc_char(charcode)
   return char
 endfunction
 
+function! s:fixup(val, tmp)
+  if type(a:val) == 1
+    return a:val
+  elseif type(a:val) == 1
+    if a:val == a:tmp.'null'
+      return function('json#null')
+    elseif a:val == a:tmp.'true'
+      return function('json#true')
+    elseif a:val == a:tmp.'false'
+      return function('json#false')
+    endif
+    return a:val
+  elseif type(a:val) == 2
+    return a:val
+  elseif type(a:val) == 3
+    return '[' . join(map(copy(a:val), 's:fixup(v:val)'), ',') . ']'
+  elseif type(a:val) == 4
+    return '{' . join(map(keys(a:val), 's:fixup(v:val).":".s:fixup(a:val[v:val])'), ',') . '}'
+  else
+    return string(a:val)
+  endif
+endfunction
+
 function! json#decode(json)
   let json = iconv(a:json, "utf-8", &encoding)
   let json = substitute(json, '\n', '', 'g')
   let json = substitute(json, '\\u34;', '\\"', 'g')
   let json = substitute(json, '\\u\(\x\x\x\x\)', '\=s:nr2enc_char("0x".submatch(1))', 'g')
   if g:json#allow_null
+    let tmp = '__WEBAPI_JSON__'
+    while 1
+      if stridx(json, tmp) == -1
+        break
+      endif
+      let tmp .= '_'
+    endwhile
     let [null,true,false] = [
-    \ function('json#null'),
-    \ function('json#true'),
-    \ function('json#false')]
+    \ tmp.'null',
+    \ tmp.'true',
+    \ tmp.'false']
+    sandbox let ret = eval(json)
+    call s:fixup(ret, tmp)
   else
     let [null,true,false] = [0,1,0]
+    sandbox let ret = eval(json)
   endif
-  sandbox let ret = eval(json)
   return ret
 endfunction
 

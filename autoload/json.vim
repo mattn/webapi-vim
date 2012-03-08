@@ -72,8 +72,8 @@ function! json#encode(val)
     return iconv(json, &encoding, "utf-8")
   elseif type(a:val) == 2
     let s = string(a:val)
-    if s == "function('json#nil')"
-      return 'NULL'
+    if s == "function('json#null')"
+      return 'null'
     elseif s == "function('json#true')"
       return 'true'
     elseif s == "function('json#false')"

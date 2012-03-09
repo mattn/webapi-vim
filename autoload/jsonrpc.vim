@@ -17,13 +17,12 @@ function! jsonrpc#call(uri, func, args)
   let res = http#post(a:uri, data, {"Content-Type": "application/json"})
   let obj = json#decode(res.content)
   if has_key(obj, 'error')
-    let err = obj.error
-    if type(err) == 0 && err != 0
-      throw err
-    elseif type(err) == 1 && err != ''
-      throw err
-    elseif type(err) == 2 && err != "function('json#null')"
-      throw err
+    if type(obj.error) == 0 && obj.error != 0
+      throw obj.error
+    elseif type(obj.error) == 1 && obj.error != ''
+      throw obj.error
+    elseif type(obj.error) == 2 && string(obj.error) != "function('json#null')"
+      throw obj.error
     endif
   endif
   if has_key(obj, 'result')

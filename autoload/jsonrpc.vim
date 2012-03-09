@@ -14,7 +14,6 @@ function! jsonrpc#call(uri, func, args)
   \ 'method':  a:func,
   \ 'params':  a:args,
   \})
-  let data = iconv(data, &encoding, "utf-8")
   let res = http#post(a:uri, data, {"Content-Type": "application/json"})
   let obj = json#decode(res.content)
   if has_key(obj, 'error')

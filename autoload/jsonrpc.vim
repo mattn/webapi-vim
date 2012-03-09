@@ -15,21 +15,31 @@ function! jsonrpc#call(uri, func, args)
   \ 'params':  a:args,
   \})
   let res = http#post(a:uri, data, {"Content-Type": "application/json"})
-  let obj = json#decode(res.content)
-  if has_key(obj, 'error')
-    let err = obj.error
-    if type(err) == 0 && err != 0
-      throw err
-    elseif type(err) == 1 && err != ''
-      throw err
-    elseif type(err) == 2 && err != "function('json#null')"
-      throw err
+  if res.content != '' &&
+    \ substitute(substitute(substitute(
+    \ res.content,
+    \ '\\\%(["\\/bfnrt]\|u[0-9a-fA-F]\{4}\)', '\@', 'g'),
+    \ '"[^\"\\\n\r]*\"\|true\|false\|null\|-\?\d\+'
+    \ . '\%(\.\d*\)\?\%([eE][+\-]\{-}\d\+\)\?', ']', 'g'),
+    \ '\%(^\|:\|,\)\%(\s*\[\)\+', '', 'g') =~ '^[\],:{} \t\n]*$'
+    let obj = json#decode(res.content)
+    if has_key(obj, 'error')
+      let err = obj.error
+      if type(err) == 0 && err != 0
+        throw err
+      elseif type(err) == 1 && err != ''
+        throw err
+      elseif type(err) == 2 && err != "function('json#null')"
+        throw err
+      endif
     endif
+    if has_key(obj, 'result')
+      return obj.result
+    endif
+    throw "Parse Error"
+  else
+    throw res.content
   endif
-  if has_key(obj, 'result')
-    return obj.result
-  endif
-  throw "Parse Error"
 endfunction
 
 function! jsonrpc#wrap(contexts)

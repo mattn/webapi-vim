@@ -69,6 +69,14 @@ endfunction
 
 function! json#decode(json)
   let json = iconv(a:json, "utf-8", &encoding)
+  if substitute(substitute(substitute(
+    \ json,
+    \ '\\\%(["\\/bfnrt]\|u[0-9a-fA-F]\{4}\)', '\@', 'g'),
+    \ '"[^\"\\\n\r]*\"\|true\|false\|null\|-\?\d\+'
+    \ . '\%(\.\d*\)\?\%([eE][+\-]\{-}\d\+\)\?', ']', 'g'),
+    \ '\%(^\|:\|,\)\%(\s*\[\)\+', '', 'g') !~ '^[\],:{} \t\n]*$'
+    throw json
+  endif
   let json = substitute(json, '\n', '', 'g')
   let json = substitute(json, '\\u34;', '\\"', 'g')
   let json = substitute(json, '\\u\(\x\x\x\x\)', '\=s:nr2enc_char("0x".submatch(1))', 'g')

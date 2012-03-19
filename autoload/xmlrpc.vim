@@ -8,10 +8,6 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('g:xmlrpc#allow_nil')
-  let g:xmlrpc#allow_nil = 0
-endif
-
 function! xmlrpc#nil()
   return 0
 endfunction
@@ -56,7 +52,7 @@ function! s:from_value(value)
     endfor
     return ret
   elseif value.name == 'nil'
-    if g:xmlrpc#allow_nil
+    if get(g:, 'xmlrpc#allow_nil', 0) != 0
       return function('xmlrpc#nil')
     endif
     return 0

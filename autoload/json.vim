@@ -7,10 +7,6 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('g:json#allow_null')
-  let g:json#allow_null = 0
-endif
-
 function! json#null()
   return 0
 endfunction
@@ -69,7 +65,7 @@ endfunction
 
 function! json#decode(json)
   let json = iconv(a:json, "utf-8", &encoding)
-  if substitute(substitute(substitute(
+  if get(g:, 'json#parse_strict', 1) == 1 && substitute(substitute(substitute(
     \ json,
     \ '\\\%(["\\/bfnrt]\|u[0-9a-fA-F]\{4}\)', '\@', 'g'),
     \ '"[^\"\\\n\r]*\"\|true\|false\|null\|-\?\d\+'
@@ -80,7 +76,7 @@ function! json#decode(json)
   let json = substitute(json, '\n', '', 'g')
   let json = substitute(json, '\\u34;', '\\"', 'g')
   let json = substitute(json, '\\u\(\x\x\x\x\)', '\=s:nr2enc_char("0x".submatch(1))', 'g')
-  if g:json#allow_null
+  if get(g:, 'json#allow_nil', 0) != 0
     let tmp = '__WEBAPI_JSON__'
     while 1
       if stridx(json, tmp) == -1

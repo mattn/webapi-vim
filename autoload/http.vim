@@ -149,7 +149,7 @@ function! http#get(url, ...)
     let command .= " ".quote.url.quote
     let res = system(command)
   endif
-  if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established'
+  while res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established' || res =~ '^HTTP/1\.\d 100 Continue'
     let pos = stridx(res, "\r\n\r\n")
     if pos != -1
       let res = res[pos+4:]
@@ -157,7 +157,7 @@ function! http#get(url, ...)
       let pos = stridx(res, "\n\n")
       let res = res[pos+2:]
     endif
-  endif
+  endwhile
   let pos = stridx(res, "\r\n\r\n")
   if pos != -1
     let content = res[pos+4:]
@@ -212,7 +212,7 @@ function! http#post(url, ...)
     let res = system(command . " --post-data @" . quote.file.quote)
   endif
   call delete(file)
-  if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established'
+  while res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established' || res =~ '^HTTP/1\.\d 100 Continue'
     let pos = stridx(res, "\r\n\r\n")
     if pos != -1
       let res = res[pos+4:]
@@ -220,7 +220,7 @@ function! http#post(url, ...)
       let pos = stridx(res, "\n\n")
       let res = res[pos+2:]
     endif
-  endif
+  endwhile
   let pos = stridx(res, "\r\n\r\n")
   if pos != -1
     let content = res[pos+4:]

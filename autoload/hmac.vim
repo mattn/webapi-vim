@@ -18,8 +18,109 @@ function hmac#md5(key, text)
   return hmac#hmac(a:key, a:text, 'md5#md5bin', 64)
 endfunction
 
-function hmac#sha1(key, text)
-  return hmac#hmac(a:key, a:text, 'sha1#sha1bin', 64)
+function hmac#sha1(key, txt)
+
+  if exists('s:sha1_method')
+    return call(s:sha1_method, [a:key, a:txt])
+  endif
+
+  let ret = s:sha1_ruby(a:key, a:txt)
+  if ret != ''
+    let s:sha1_method = 's:sha1_ruby'
+    return ret
+  endif
+
+  let ret = s:sha1_python(a:key, a:txt)
+  if ret != ''
+    let s:sha1_method = 's:sha1_python'
+    return ret
+  endif
+
+  let ret = s:sha1_perl(a:key, a:txt)
+  if ret != ''
+    let s:sha1_method = 's:sha1_perl'
+    return ret
+  endif
+
+  let s:sha1_method = 's:sha1_vim'
+  return s:sha1_vim(a:key, a:txt)
+endfunction
+
+function! s:sha1_ruby(key, txt)
+  if !has('ruby')
+    return ''
+  endif
+  try
+ruby << EOF
+  require 'openssl'
+  key = VIM.evaluate("a:key")
+  txt = VIM.evaluate("a:txt")
+  digest = OpenSSL::Digest::Digest.new('sha1')
+  result = OpenSSL::HMAC.hexdigest(digest, key, txt)
+  VIM.command("let ret = '#{result}'")
+EOF
+    return ret
+  catch
+    return ''
+  endtry
+endfunction
+
+function s:sha1_python(key, txt)
+  if !has('python')
+    return ''
+  endif
+  try
+  python << EOF
+import vim
+import hashlib
+import hmac
+key = vim.eval("a:key")
+txt = vim.eval('a:txt')
+hex = hmac.new(key, txt, hashlib.sha1).hexdigest()
+vim.command('let ret = "{0}"'.format(hex))
+EOF
+    return ret
+  catch
+    return ''
+  endtry
+endfunction
+
+function! s:sha1_perl(key, txt)
+  if !has('perl')
+    return ''
+  endif
+  try
+perl << EOF
+  # http://adiary.blog.abk.nu/0274
+  # license : PDS
+  require Digest::SHA1;
+	my $key = VIM::Eval('a:key');
+  my $msg = VIM::Eval('a:txt');
+  my $sha1 = Digest::SHA1->new;
+	if (length($key) > 64) {
+		$key = $sha1->add($key)->digest;
+		$sha1->reset;
+	}
+	my $k_opad = $key ^ ("\x5c" x 64);
+	my $k_ipad = $key ^ ("\x36" x 64);
+	$sha1->add($k_ipad);
+	$sha1->add($msg);
+	my $hk_ipad = $sha1->digest;
+	$sha1->reset;
+	$sha1->add($k_opad, $hk_ipad);
+
+	my $b64d = $sha1->hexdigest;
+  VIM::DoCommand('let ret = "' . $b64d . '"');
+EOF
+	  return ret
+  catch
+    return ''
+  endtry
+
+endfunction
+
+function! s:sha1_vim(key, txt)
+    return hmac#hmac(a:key, a:txt, 'sha1#sha1bin', 64)
 endfunction
 
 " http://www.ietf.org/rfc/rfc2202.txt

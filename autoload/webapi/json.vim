@@ -7,15 +7,15 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! json#null()
+function! webapi#json#null()
   return 0
 endfunction
 
-function! json#true()
+function! webapi#json#true()
   return 1
 endfunction
 
-function! json#false()
+function! webapi#json#false()
   return 0
 endfunction
 
@@ -45,11 +45,11 @@ function! s:fixup(val, tmp)
     return a:val
   elseif type(a:val) == 1
     if a:val == a:tmp.'null'
-      return function('json#null')
+      return function('webapi#json#null')
     elseif a:val == a:tmp.'true'
-      return function('json#true')
+      return function('webapi#json#true')
     elseif a:val == a:tmp.'false'
-      return function('json#false')
+      return function('webapi#json#false')
     endif
     return a:val
   elseif type(a:val) == 2
@@ -63,9 +63,9 @@ function! s:fixup(val, tmp)
   endif
 endfunction
 
-function! json#decode(json)
+function! webapi#json#decode(json)
   let json = iconv(a:json, "utf-8", &encoding)
-  if get(g:, 'json#parse_strict', 1) == 1 && substitute(substitute(substitute(
+  if get(g:, 'webapi#json#parse_strict', 1) == 1 && substitute(substitute(substitute(
     \ json,
     \ '\\\%(["\\/bfnrt]\|u[0-9a-fA-F]\{4}\)', '\@', 'g'),
     \ '"[^\"\\\n\r]*\"\|true\|false\|null\|-\?\d\+'
@@ -76,7 +76,7 @@ function! json#decode(json)
   let json = substitute(json, '\n', '', 'g')
   let json = substitute(json, '\\u34;', '\\"', 'g')
   let json = substitute(json, '\\u\(\x\x\x\x\)', '\=s:nr2enc_char("0x".submatch(1))', 'g')
-  if get(g:, 'json#allow_nil', 0) != 0
+  if get(g:, 'webapi#json#allow_nil', 0) != 0
     let tmp = '__WEBAPI_JSON__'
     while 1
       if stridx(json, tmp) == -1
@@ -97,7 +97,7 @@ function! json#decode(json)
   return ret
 endfunction
 
-function! json#encode(val)
+function! webapi#json#encode(val)
   if type(a:val) == 0
     return a:val
   elseif type(a:val) == 1
@@ -108,17 +108,17 @@ function! json#encode(val)
     return iconv(json, &encoding, "utf-8")
   elseif type(a:val) == 2
     let s = string(a:val)
-    if s == "function('json#null')"
+    if s == "function('webapi#json#null')"
       return 'null'
-    elseif s == "function('json#true')"
+    elseif s == "function('webapi#json#true')"
       return 'true'
-    elseif s == "function('json#false')"
+    elseif s == "function('webapi#json#false')"
       return 'false'
     endif
   elseif type(a:val) == 3
-    return '[' . join(map(copy(a:val), 'json#encode(v:val)'), ',') . ']'
+    return '[' . join(map(copy(a:val), 'webapi#json#encode(v:val)'), ',') . ']'
   elseif type(a:val) == 4
-    return '{' . join(map(keys(a:val), 'json#encode(v:val).":".json#encode(a:val[v:val])'), ',') . '}'
+    return '{' . join(map(keys(a:val), 'webapi#json#encode(v:val).":".webapi#json#encode(a:val[v:val])'), ',') . '}'
   else
     return string(a:val)
   endif

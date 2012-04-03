@@ -33,15 +33,15 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! sha1#sha1(str)
+function! webapi#sha1#sha1(str)
   return s:SHA1Digest(s:str2bytes(a:str))
 endfunction
 
-function! sha1#sha1bin(bin)
+function! webapi#sha1#sha1bin(bin)
   return s:SHA1Digest(a:bin)
 endfunction
 
-function! sha1#test()
+function! webapi#sha1#test()
   call s:main()
 endfunction
 

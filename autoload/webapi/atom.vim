@@ -68,23 +68,23 @@ function s:entry_template.setContentFromFile(file) dict
   let quote = &shellxquote == '"' ?  "'" : '"'
   let bits = substitute(system("xxd -ps ".quote.file.quote), "[ \n\r]", '', 'g')
   let self['mode'] = "base64"
-  let self['content'] = base64#b64encodebin(bits)
+  let self['content'] = webapi#base64#b64encodebin(bits)
 endfunction
 
 unlet s:name
 unlet s:key
 
-function! atom#newEntry()
+function! webapi#atom#newEntry()
   return deepcopy(s:entry_template)
 endfunction
 
 function! s:createXml(entry)
-  let entry = xml#createElement("entry")
+  let entry = webapi#xml#createElement("entry")
   let entry.attr["xmlns"] = "http://purl.org/atom/ns#"
 
   for key in keys(a:entry)
     if type(a:entry[key]) == 1 && key !~ '\.'
-      let node = xml#createElement(key)
+      let node = webapi#xml#createElement(key)
       call node.value(a:entry[key])
       if key == "content"
         let node.attr["type"] = a:entry['content.type']
@@ -99,15 +99,15 @@ endfunction
 
 function! s:createWsse(user, pass)
   let now = localtime()
-  let nonce = sha1#sha1(now . " " . now)[0:28]
+  let nonce = webapi#sha1#sha1(now . " " . now)[0:28]
   let created = strftime("%Y-%m-%dT%H:%M:%SZ", now)
-  let passworddigest = base64#b64encodebin(sha1#sha1(nonce.created.a:pass))
-  let nonce = base64#b64encode(nonce)
+  let passworddigest = webapi#base64#b64encodebin(webapi#sha1#sha1(nonce.created.a:pass))
+  let nonce = webapi#base64#b64encode(nonce)
   return 'UsernameToken Username="'.a:user.'", PasswordDigest="'.passworddigest.'", Nonce="'.nonce.'", Created="'.created.'"'
 endfunction
 
-function! atom#deleteEntry(uri, user, pass)
-  let res = http#post(a:uri, "",
+function! webapi#atom#deleteEntry(uri, user, pass)
+  let res = webapi#http#post(a:uri, "",
     \ {
     \   "Content-Type": "application/x.atom+xml",
     \   "X-WSSE": s:createWsse(a:user, a:pass)
@@ -115,11 +115,11 @@ function! atom#deleteEntry(uri, user, pass)
   return res
 endfunction
 
-function! atom#updateEntry(uri, user, pass, entry, ...)
+function! webapi#atom#updateEntry(uri, user, pass, entry, ...)
   let headdata = a:0 > 0 ? a:000[0] : {}
   let headdata["Content-Type"] = "application/x.atom+xml"
   let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
-  let res = http#post(a:uri, s:createXml(a:entry), headdata, "PUT")
+  let res = webapi#http#post(a:uri, s:createXml(a:entry), headdata, "PUT")
   let location = filter(res.header, 'v:val =~ "^Location:"')
   if len(location)
     return split(location[0], '\s*:\s\+')[1]
@@ -127,12 +127,12 @@ function! atom#updateEntry(uri, user, pass, entry, ...)
   return ''
 endfunction
 
-function! atom#createEntry(uri, user, pass, entry, ...)
+function! webapi#atom#createEntry(uri, user, pass, entry, ...)
   let headdata = a:0 > 0 ? a:000[0] : {}
   let headdata["Content-Type"] = "application/x.atom+xml"
   let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
   let headdata["WWW-Authenticate"] = "WSSE profile=\"UsernameToken\""
-  let res = http#post(a:uri, s:createXml(a:entry), headdata, "POST")
+  let res = webapi#http#post(a:uri, s:createXml(a:entry), headdata, "POST")
   let location = filter(res.header, 'v:val =~ "^Location:"')
   if len(location)
     return split(location[0], '\s*:\s\+')[1]
@@ -185,34 +185,34 @@ function! s:parse_node(target, parent)
   endfor
 endfunction
 
-function! atom#getFeed(uri, user, pass)
+function! webapi#atom#getFeed(uri, user, pass)
   let headdata = {}
   if len(a:user) > 0 && len(a:pass) > 0
     let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
   endif
-  let res = http#get(a:uri, {}, headdata)
-  let dom = xml#parse(res.content)
+  let res = webapi#http#get(a:uri, {}, headdata)
+  let dom = webapi#xml#parse(res.content)
   let feed = deepcopy(s:feed_template)
   call s:parse_node(feed, dom)
   return feed
 endfunction
 
-function! atom#getService(uri, user, pass)
+function! webapi#atom#getService(uri, user, pass)
   let headdata = {}
   if len(a:user) > 0 && len(a:pass) > 0
     let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
   endif
-  let res = http#get(a:uri, {}, headdata)
-  return xml#parse(res.content)
+  let res = webapi#http#get(a:uri, {}, headdata)
+  return webapi#xml#parse(res.content)
 endfunction
 
-function! atom#getEntry(uri, user, pass)
+function! webapi#atom#getEntry(uri, user, pass)
   let headdata = {}
   if len(a:user) > 0 && len(a:pass) > 0
     let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
   endif
-  let res = http#get(a:uri, {}, headdata)
-  let dom = xml#parse(res.content)
+  let res = webapi#http#get(a:uri, {}, headdata)
+  let dom = webapi#xml#parse(res.content)
   let entry = deepcopy(s:entry_template)
   call s:parse_node(entry, dom)
   return entry

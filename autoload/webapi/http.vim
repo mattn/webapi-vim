@@ -56,23 +56,23 @@ function! s:urlencode_char(c)
   return s
 endfunction
 
-function! http#decodeURI(str)
+function! webapi#http#decodeURI(str)
   let ret = a:str
   let ret = substitute(ret, '+', ' ', 'g')
   let ret = substitute(ret, '%\(\x\x\)', '\=printf("%c", str2nr(submatch(1), 16))', 'g')
   return ret
 endfunction
 
-function! http#escape(str)
+function! webapi#http#escape(str)
   return substitute(a:str, '[^a-zA-Z0-9_.~/-]', '\=s:urlencode_char(submatch(0))', 'g')
 endfunction
 
-function! http#encodeURI(items)
+function! webapi#http#encodeURI(items)
   let ret = ''
   if type(a:items) == 4
     for key in sort(keys(a:items))
       if strlen(ret) | let ret .= "&" | endif
-      let ret .= key . "=" . http#encodeURI(a:items[key])
+      let ret .= key . "=" . webapi#http#encodeURI(a:items[key])
     endfor
   elseif type(a:items) == 3
     for item in sort(a:items)
@@ -85,12 +85,12 @@ function! http#encodeURI(items)
   return ret
 endfunction
 
-function! http#encodeURIComponent(items)
+function! webapi#http#encodeURIComponent(items)
   let ret = ''
   if type(a:items) == 4
     for key in sort(keys(a:items))
       if strlen(ret) | let ret .= "&" | endif
-      let ret .= key . "=" . http#encodeURIComponent(a:items[key])
+      let ret .= key . "=" . webapi#http#encodeURIComponent(a:items[key])
     endfor
   elseif type(a:items) == 3
     for item in sort(a:items)
@@ -116,11 +116,11 @@ function! http#encodeURIComponent(items)
   return ret
 endfunction
 
-function! http#get(url, ...)
+function! webapi#http#get(url, ...)
   let getdata = a:0 > 0 ? a:000[0] : {}
   let headdata = a:0 > 1 ? a:000[1] : {}
   let url = a:url
-  let getdatastr = http#encodeURI(getdata)
+  let getdatastr = webapi#http#encodeURI(getdata)
   if strlen(getdatastr)
     let url .= "?" . getdatastr
   endif
@@ -171,13 +171,13 @@ function! http#get(url, ...)
   \}
 endfunction
 
-function! http#post(url, ...)
+function! webapi#http#post(url, ...)
   let postdata = a:0 > 0 ? a:000[0] : {}
   let headdata = a:0 > 1 ? a:000[1] : {}
   let method = a:0 > 2 ? a:000[2] : "POST"
   let url = a:url
   if type(postdata) == 4
-    let postdatastr = http#encodeURI(postdata)
+    let postdatastr = webapi#http#encodeURI(postdata)
   else
     let postdatastr = postdata
   endif

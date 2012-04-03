@@ -177,7 +177,7 @@ function! s:template.toString() dict
   return xml
 endfunction
 
-function! xml#createElement(name)
+function! webapi#xml#createElement(name)
   let node = deepcopy(s:template)
   let node.name = a:name
   return node
@@ -286,7 +286,7 @@ function! s:parse_tree(ctx, top)
   endwhile
 endfunction
 
-function! xml#parse(xml)
+function! webapi#xml#parse(xml)
   let top = deepcopy(s:template)
   let oldmaxmempattern=&maxmempattern
   let oldmaxfuncdepth=&maxfuncdepth
@@ -307,12 +307,12 @@ function! xml#parse(xml)
   throw "Parse Error"
 endfunction
 
-function! xml#parseFile(fname)
-  return xml#parse(join(readfile(a:fname), "\n"))
+function! webapi#xml#parseFile(fname)
+  return webapi#xml#parse(join(readfile(a:fname), "\n"))
 endfunction
 
-function! xml#parseURL(url)
-  return xml#parse(http#get(a:url).content)
+function! webapi#xml#parseURL(url)
+  return webapi#xml#parse(webapi#http#get(a:url).content)
 endfunction
 
 let &cpo = s:save_cpo

@@ -9,18 +9,18 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 function! s:soap_call(url, func, ...)
-  let envelope = xml#createElement("soap:Envelope")
+  let envelope = webapi#xml#createElement("soap:Envelope")
   let envelope.attr["xmlns:soap"] = "http://schemas.xmlsoap.org/soap/envelope/"
   let envelope.attr["xmlns:xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
 
-  let body = xml#createElement("soap:Body")
+  let body = webapi#xml#createElement("soap:Body")
   call add(envelope.child, body)
-  let func = xml#createElement(a:func)
+  let func = webapi#xml#createElement(a:func)
   call add(body.child, func)
 
   let n = 1
   for a in a:000
-    let arg = xml#createElement("param".n)
+    let arg = webapi#xml#createElement("param".n)
     let arg.attr["xsi:type"] = "xsd:string"
     call arg.value(a)
     call add(func.child, arg)
@@ -28,8 +28,8 @@ function! s:soap_call(url, func, ...)
   endfor
 
   let str = '<?xml version="1.0" encoding="UTF-8"?>' . envelope.toString()
-  let res = http#post(a:url, str)
-  let dom = xml#parse(res.content)
+  let res = webapi#http#post(a:url, str)
+  let dom = webapi#xml#parse(res.content)
   return s:parse_return(dom.find("return"))
 endfunction
 
@@ -83,8 +83,8 @@ function! s:get_convert_code(arg)
   return code
 endfunction
 
-function! soap#proxy(url)
-  let dom = xml#parseURL(a:url)
+function! webapi#soap#proxy(url)
+  let dom = webapi#xml#parseURL(a:url)
   let l:api = {}
   let action = dom.childNode("service").find("soap:address").attr["location"]
   let operations = dom.childNode("portType").childNodes("operation")

@@ -8,20 +8,20 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! jsonrpc#call(uri, func, args)
-  let data = json#encode({
+function! webapi#jsonrpc#call(uri, func, args)
+  let data = webapi#json#encode({
   \ 'jsonrpc': '2.0',
   \ 'method':  a:func,
   \ 'params':  a:args,
   \})
-  let res = http#post(a:uri, data, {"Content-Type": "application/json"})
-  let obj = json#decode(res.content)
+  let res = webapi#http#post(a:uri, data, {"Content-Type": "application/json"})
+  let obj = webapi#json#decode(res.content)
   if has_key(obj, 'error')
     if type(obj.error) == 0 && obj.error != 0
       throw obj.error
     elseif type(obj.error) == 1 && obj.error != ''
       throw obj.error
-    elseif type(obj.error) == 2 && string(obj.error) != "function('json#null')"
+    elseif type(obj.error) == 2 && string(obj.error) != "function('webapi#json#null')"
       throw obj.error
     endif
   endif
@@ -31,7 +31,7 @@ function! jsonrpc#call(uri, func, args)
   throw "Parse Error"
 endfunction
 
-function! jsonrpc#wrap(contexts)
+function! webapi#jsonrpc#wrap(contexts)
   let api = {}
   for context in a:contexts
     let target = api
@@ -56,11 +56,11 @@ function! jsonrpc#wrap(contexts)
     endif
     if has_key(context, 'alias')
       exe "function api.".context.alias."(".join(context.argnames,",").") dict\n"
-      \.  "  return jsonrpc#call(self['.uri'], '".context.name."', ".arglist.")\n"
+      \.  "  return webapi#jsonrpc#call(self['.uri'], '".context.name."', ".arglist.")\n"
       \.  "endfunction\n"
     else
       exe "function api.".context.name."(".join(context.argnames,",").") dict\n"
-      \.  "  return jsonrpc#call('".context.uri."', '".context.name."', ".arglist.")\n"
+      \.  "  return webapi#jsonrpc#call('".context.uri."', '".context.name."', ".arglist.")\n"
       \.  "endfunction\n"
     endif
   endfor

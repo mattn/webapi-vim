@@ -9,58 +9,58 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! base64#b64encode(data)
+function! webapi#base64#b64encode(data)
   let b64 = s:b64encode(s:str2bytes(a:data), s:standard_table, '=')
   return join(b64, '')
 endfunction
 
-function! base64#b64encodebin(data)
+function! webapi#base64#b64encodebin(data)
   let b64 = s:b64encode(s:binstr2bytes(a:data), s:standard_table, '=')
   return join(b64, '')
 endfunction
 
-function! base64#b64decode(data)
+function! webapi#base64#b64decode(data)
   let bytes = s:b64decode(split(a:data, '\zs'), s:standard_table, '=')
   return s:bytes2str(bytes)
 endfunction
 
-function! base64#test()
-  if base64#b64encode("hello, world") ==# "aGVsbG8sIHdvcmxk"
+function! webapi#base64#test()
+  if webapi#base64#b64encode("hello, world") ==# "aGVsbG8sIHdvcmxk"
     echo "test1: ok"
   else
     echoerr "test1: failed"
   endif
-  if base64#b64encode("hello, worldx") ==# "aGVsbG8sIHdvcmxkeA=="
+  if webapi#base64#b64encode("hello, worldx") ==# "aGVsbG8sIHdvcmxkeA=="
     echo "test2: ok"
   else
     echoerr "test2: failed"
   endif
-  if base64#b64encode("hello, worldxx") ==# "aGVsbG8sIHdvcmxkeHg="
+  if webapi#base64#b64encode("hello, worldxx") ==# "aGVsbG8sIHdvcmxkeHg="
     echo "test3: ok"
   else
     echoerr "test3: falied"
   endif
-  if base64#b64encode("hello, worldxxx") ==# "aGVsbG8sIHdvcmxkeHh4"
+  if webapi#base64#b64encode("hello, worldxxx") ==# "aGVsbG8sIHdvcmxkeHh4"
     echo "test4: ok"
   else
     echoerr "test4: falied"
   endif
-  if base64#b64decode(base64#b64encode("hello, world")) ==# "hello, world"
+  if webapi#base64#b64decode(webapi#base64#b64encode("hello, world")) ==# "hello, world"
     echo "test5: ok"
   else
     echoerr "test5: failed"
   endif
-  if base64#b64decode(base64#b64encode("hello, worldx")) ==# "hello, worldx"
+  if webapi#base64#b64decode(webapi#base64#b64encode("hello, worldx")) ==# "hello, worldx"
     echo "test6: ok"
   else
     echoerr "test6: failed"
   endif
-  if base64#b64decode(base64#b64encode("hello, worldxx")) ==# "hello, worldxx"
+  if webapi#base64#b64decode(webapi#base64#b64encode("hello, worldxx")) ==# "hello, worldxx"
     echo "test7: ok"
   else
     echoerr "test7: failed"
   endif
-  if base64#b64decode(base64#b64encode("hello, worldxxx")) ==# "hello, worldxxx"
+  if webapi#base64#b64decode(webapi#base64#b64encode("hello, worldxxx")) ==# "hello, worldxxx"
     echo "test8: ok"
   else
     echoerr "test8: failed"

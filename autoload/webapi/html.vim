@@ -28,7 +28,7 @@ function! s:nr2enc_char(charcode)
   return char
 endfunction
 
-function! html#decodeEntityReference(str)
+function! webapi#html#decodeEntityReference(str)
   let str = a:str
   let str = substitute(str, '&gt;', '>', 'g')
   let str = substitute(str, '&lt;', '<', 'g')
@@ -43,7 +43,7 @@ function! html#decodeEntityReference(str)
   return str
 endfunction
 
-function! html#encodeEntityReference(str)
+function! webapi#html#encodeEntityReference(str)
   let str = a:str
   let str = substitute(str, '&', '\&amp;', 'g')
   let str = substitute(str, '>', '\&gt;', 'g')
@@ -55,17 +55,17 @@ function! html#encodeEntityReference(str)
   return str
 endfunction
 
-function! html#parse(html)
+function! webapi#html#parse(html)
   let html = substitute(a:html, '<\(area\|base\|basefont\|br\|nobr\|col\|frame\|hr\|img\|input\|isindex\|link\|meta\|param\|embed\|keygen\|command\)\([^>]*[^/]\|\)>', '<\1\2/>', 'g')
-  return xml#parse(html)
+  return webapi#xml#parse(html)
 endfunction
 
-function! html#parseFile(fname)
-  return html#parse(join(readfile(a:fname), "\n"))
+function! webapi#html#parseFile(fname)
+  return webapi#html#parse(join(readfile(a:fname), "\n"))
 endfunction
 
-function! html#parseURL(url)
-  return html#parse(http#get(a:url).content)
+function! webapi#html#parseURL(url)
+  return webapi#html#parse(webapi#http#get(a:url).content)
 endfunction
 
 let &cpo = s:save_cpo

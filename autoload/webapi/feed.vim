@@ -15,6 +15,16 @@ function! webapi#feed#parseURL(url)
       \  "date": item.childNode('pubDate').value(),
       \})
     endfor
+  elseif dom.name == 'rdf:RDF'
+    for item in dom.childNodes('item')
+      call add(items, {
+      \  "title": item.childNode('title').value(),
+      \  "link": item.childNode('link').value(),
+      \  "content": item.childNode('description').value(),
+      \  "id": item.childNode('link').value(),
+      \  "date": item.childNode('dc:date').value(),
+      \})
+    endfor
   elseif dom.name == 'feed'
     for item in dom.childNodes('entry')
       call add(items, {

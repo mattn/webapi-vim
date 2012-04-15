@@ -12,10 +12,10 @@ let imgurl = api.newMediaObject(jugem_id, jugem_id, password, {
 \ "path": imagePath,
 \})
 
-let text = "どないや<br /><img src=\"".imgurl["url"]."\">"
+let text = "How about this?<br /><img src=\"".imgurl["url"]."\">"
 
 echo api.newPost(jugem_id, jugem_id, password, {
-\ "title": "vimでmetaWeblogAPIを叩いて画像付きブログをポストする",
+\ "title": "post from webpi-vim",
 \ "description": text,
 \ "dateCreated": "",
 \ "categories": ["test"],

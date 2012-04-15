@@ -3,9 +3,9 @@ scriptencoding utf-8
 let livedoor_id = 'your-livedoor-id'
 let password = 'your-livedoor-password'
 
-" エントリを書く
+" write entry
 let entry = atom#newEntry()
-call entry.setTitle("日記エントリータイトル")
+call entry.setTitle("title of entry")
 call entry.setContentType("text/html")
 call entry.setContent("<script>alert(3)</script>")
 

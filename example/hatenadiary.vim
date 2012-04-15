@@ -3,25 +3,25 @@ scriptencoding utf-8
 let hatena_id = 'your-hatena-id'
 let password = 'your-hatena-password'
 
-" エントリを書く
+" write entry
 let entry = atom#newEntry()
-call entry.setTitle("日記エントリータイトル")
+call entry.setTitle("title of entry")
 call entry.setContentType("text/html")
 call entry.setContent("<script>alert(2)</script>")
 
-" エントリを下書きとしてポストする
+" post draft
 let id = atom#createEntry("http://d.hatena.ne.jp/".hatena_id."/atom/draft", hatena_id, password, entry)
 
-" ちょっと修正して下書きから公開に変更し、新しいIDを得る
+" modify it. publish it.
 call entry.setContent("<script>alert(1)</script>")
 let id = atom#updateEntry(id, hatena_id, password, entry, {"X-HATENA-PUBLISH": 1})
 
-" 公開エントリを取得して表示する
+" get the entry.
 let entry = atom#getEntry(id, hatena_id, password)
 echo entry.getTitle()
 echo entry.getContent()
 
-" エントリを消す
+" delete the entry.
 call atom#deleteEntry(id, hatena_id, password)
 
 " vim:set ft=vim:

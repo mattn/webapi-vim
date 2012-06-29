@@ -149,6 +149,8 @@ function! webapi#http#get(url, ...)
     endfor
     let command .= " ".quote.url.quote
     let res = system(command)
+  else
+    throw "require `curl` or `wget` command"
   endif
   if follow != 0
     while res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established' || res =~ '^HTTP/1\.\d 100 Continue'
@@ -185,6 +187,7 @@ function! webapi#http#post(url, ...)
   else
     let postdatastr = postdata
   endif
+  let file = tempname()
   if executable('curl')
     let command = printf('curl %s -s -k -i -X %s', (follow ? '-L' : ''), len(method) ? method : 'POST')
     let quote = &shellxquote == '"' ?  "'" : '"'
@@ -196,7 +199,6 @@ function! webapi#http#post(url, ...)
 	  endif
     endfor
     let command .= " ".quote.url.quote
-    let file = tempname()
     call writefile(split(postdatastr, "\n"), file, "b")
     let res = system(command . " --data-binary @" . quote.file.quote)
   elseif executable('wget')
@@ -211,9 +213,10 @@ function! webapi#http#post(url, ...)
 	  endif
     endfor
     let command .= " ".quote.url.quote
-    let file = tempname()
     call writefile(split(postdatastr, "\n"), file, "b")
     let res = system(command . " --post-data @" . quote.file.quote)
+  else
+    throw "require `curl` or `wget` command"
   endif
   call delete(file)
   if follow != 0

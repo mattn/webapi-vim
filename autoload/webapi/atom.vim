@@ -8,6 +8,8 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:system = function(get(g:, 'webapi#system_function', 'system'))
+
 let s:author_template = {
 \ "name": "",
 \}
@@ -66,7 +68,7 @@ for s:name in ['author', 'link', 'category', 'feed', 'entry']
 endfor
 function s:entry_template.setContentFromFile(file) dict
   let quote = &shellxquote == '"' ?  "'" : '"'
-  let bits = substitute(system("xxd -ps ".quote.file.quote), "[ \n\r]", '', 'g')
+  let bits = substitute(s:system("xxd -ps ".quote.file.quote), "[ \n\r]", '', 'g')
   let self['mode'] = "base64"
   let self['content'] = webapi#base64#b64encodebin(bits)
 endfunction

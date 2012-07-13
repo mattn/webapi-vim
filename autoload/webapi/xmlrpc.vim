@@ -8,6 +8,8 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:system = function(get(g:, 'webapi#system_function', 'system'))
+
 function! webapi#xmlrpc#nil()
   return 0
 endfunction
@@ -88,7 +90,7 @@ function! s:to_value(content)
         call base64.value(a:content["bits"])
       elseif has_key(a:content, "path")
         let quote = &shellxquote == '"' ?  "'" : '"'
-        let bits = substitute(system("xxd -ps ".quote.a:content["path"].quote), "[ \n\r]", '', 'g')
+        let bits = substitute(s:system("xxd -ps ".quote.a:content["path"].quote), "[ \n\r]", '', 'g')
         call base64.value(webapi#base64#b64encodebin(bits))
       endif
       return struct

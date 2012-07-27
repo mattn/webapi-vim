@@ -162,11 +162,11 @@ function! s:to_fault(dom)
   return faultCode.":".faultString
 endfunction
 
-function! webapi#xmlrpc#call(uri, func, args)
-  let methodCall = webapi#xml#createElement("methodCall")
-  let methodName = webapi#xml#createElement("methodName")
-  call methodName.value(a:func)
-  call add(methodCall.child, methodName)
+"add_node_params
+"Add list of args on the xml tree.
+"input: list of args
+"output: none
+function! s:add_node_params(args)
   let params = webapi#xml#createElement("params")
   for Arg in a:args
     let param = webapi#xml#createElement("param")
@@ -177,6 +177,17 @@ function! webapi#xmlrpc#call(uri, func, args)
     unlet Arg
   endfor
   call add(methodCall.child, params)
+  return
+endfunction
+
+function! webapi#xmlrpc#call(uri, func, args)
+  let methodCall = webapi#xml#createElement("methodCall")
+  let methodName = webapi#xml#createElement("methodName")
+  call methodName.value(a:func)
+  call add(methodCall.child, methodName)
+  if !empty(a:args)
+       s:add_node_params(args)
+  endif
   let xml = iconv(methodCall.toString(), &encoding, "utf-8")
   let res = webapi#http#post(a:uri, xml, {"Content-Type": "text/xml"})
   let dom = webapi#xml#parse(res.content)

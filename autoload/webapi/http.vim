@@ -135,7 +135,7 @@ function! webapi#http#get(url, ...)
         let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
       else
         let command .= " -H " . quote . key . ": " . headdata[key] . quote
-	  endif
+      endif
     endfor
     let command .= " ".quote.url.quote
     let res = s:system(command)
@@ -147,7 +147,7 @@ function! webapi#http#get(url, ...)
         let command .= " --header=" . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
       else
         let command .= " --header=" . quote . key . ": " . headdata[key] . quote
-	  endif
+      endif
     endfor
     let command .= " ".quote.url.quote
     let res = s:system(command)
@@ -198,7 +198,7 @@ function! webapi#http#post(url, ...)
         let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
       else
         let command .= " -H " . quote . key . ": " . headdata[key] . quote
-	  endif
+      endif
     endfor
     let command .= " ".quote.url.quote
     call writefile(split(postdatastr, "\n"), file, "b")
@@ -212,7 +212,7 @@ function! webapi#http#post(url, ...)
         let command .= " --header=" . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
       else
         let command .= " --header=" . quote . key . ": " . headdata[key] . quote
-	  endif
+      endif
     endfor
     let command .= " ".quote.url.quote
     call writefile(split(postdatastr, "\n"), file, "b")

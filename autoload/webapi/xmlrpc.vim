@@ -162,6 +162,10 @@ function! s:to_fault(dom)
   return faultCode.":".faultString
 endfunction
 
+"add_node_params
+"Add list of args on the xml tree.
+"input: list of args
+"output: none
 function! s:add_node_params(args)
   let params = webapi#xml#createElement("params")
   for Arg in a:args
@@ -185,7 +189,6 @@ function! webapi#xmlrpc#call(uri, func, args)
        s:add_node_params(args)
   endif
   let xml = iconv(methodCall.toString(), &encoding, "utf-8")
-  echo xml
   let res = webapi#http#post(a:uri, xml, {"Content-Type": "text/xml"})
   let dom = webapi#xml#parse(res.content)
   if len(dom.find('fault'))

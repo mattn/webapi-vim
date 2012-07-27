@@ -162,24 +162,30 @@ function! s:to_fault(dom)
   return faultCode.":".faultString
 endfunction
 
+function! s:add_node_params(args)
+  let params = webapi#xml#createElement("params")
+  for Arg in a:args
+    let param = webapi#xml#createElement("param")
+    let value = webapi#xml#createElement("value")
+    call value.value(s:to_value(Arg))
+    call add(param.child, value)
+    call add(params.child, param)
+    unlet Arg
+  endfor
+  call add(methodCall.child, params)
+  return
+endfunction
+
 function! webapi#xmlrpc#call(uri, func, args)
   let methodCall = webapi#xml#createElement("methodCall")
   let methodName = webapi#xml#createElement("methodName")
   call methodName.value(a:func)
   call add(methodCall.child, methodName)
   if !empty(a:args)
-      let params = webapi#xml#createElement("params")
-      for Arg in a:args
-        let param = webapi#xml#createElement("param")
-        let value = webapi#xml#createElement("value")
-        call value.value(s:to_value(Arg))
-        call add(param.child, value)
-        call add(params.child, param)
-        unlet Arg
-      endfor
-      call add(methodCall.child, params)
+       s:add_node_params(args)
   endif
   let xml = iconv(methodCall.toString(), &encoding, "utf-8")
+  echo xml
   let res = webapi#http#post(a:uri, xml, {"Content-Type": "text/xml"})
   let dom = webapi#xml#parse(res.content)
   if len(dom.find('fault'))

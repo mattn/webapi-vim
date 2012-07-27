@@ -198,6 +198,7 @@ function! webapi#xmlrpc#wrap(contexts)
           let target[ns] = {".uri": context.uri}
         endif
         let target = target[ns]
+        let api['.uri'] = target['.uri']
       endfor
     endif
     if len(context.argnames) && context.argnames[-1] == '...'

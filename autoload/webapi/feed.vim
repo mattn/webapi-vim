@@ -1,38 +1,46 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+function! s:attr(node, name)
+  let n = a:node.childNode(a:name)
+  if empty(n)
+    return ""
+  endif
+  return n.value()
+endfunction
+
 function! webapi#feed#parseURL(url)
-  let dom = webapi#xml#parse(webapi#http#get(a:url).content)
+  let dom = webapi#xml#parseURL(a:url)
   let items = []
   if dom.name == 'rss'
     let channel = dom.childNode('channel')
     for item in channel.childNodes('item')
       call add(items, {
-      \  "title": item.childNode('title').value(),
-      \  "link": item.childNode('link').value(),
-      \  "content": item.childNode('description').value(),
-      \  "id": item.childNode('guid').value(),
-      \  "date": item.childNode('pubDate').value(),
+      \  "title": s:attr(item, 'title'),
+      \  "link": s:attr(item, 'link'),
+      \  "content": s:attr(item, 'description'),
+      \  "id": s:attr(item, 'guid'),
+      \  "date": s:attr(item, 'pubDate'),
       \})
     endfor
   elseif dom.name == 'rdf:RDF'
     for item in dom.childNodes('item')
       call add(items, {
-      \  "title": item.childNode('title').value(),
-      \  "link": item.childNode('link').value(),
-      \  "content": item.childNode('description').value(),
-      \  "id": item.childNode('link').value(),
-      \  "date": item.childNode('dc:date').value(),
+      \  "title": s:attr(item, 'title'),
+      \  "link": s:attr(item, 'link'),
+      \  "content": : s:attr(item, 'description'),
+      \  "id": s:attr(item, 'guid'),
+      \  "date": s:attr(item, 'dc:date'),
       \})
     endfor
   elseif dom.name == 'feed'
     for item in dom.childNodes('entry')
       call add(items, {
-      \  "title": item.childNode('title').value(),
+      \  "title": s:attr(item, 'title'),
       \  "link": item.childNode('link').attr['href'],
-      \  "content": item.childNode('content').value(),
-      \  "id": item.childNode('id').value(),
-      \  "date": item.childNode('updated').value(),
+      \  "content": s:attr(item, 'content'),
+      \  "id": s:attr(item, 'id'),
+      \  "date": s:attr(item, 'update'),
       \})
     endfor
   endif

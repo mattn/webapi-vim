@@ -70,9 +70,9 @@ function! s:matchNode(node, cond)
   endif
   if type(a:cond) == 3
     let ret = 1
-    for r in a:cond
-      if !s:matchNode(a:node, r) | let ret = 0 | endif
-      unlet r
+    for l:R in a:cond
+      if !s:matchNode(a:node, l:R) | let ret = 0 | endif
+      unlet l:R
     endfor
     return ret
   endif

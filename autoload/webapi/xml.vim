@@ -217,8 +217,7 @@ function! s:parse_tree(ctx, top)
   "    7) text content of CDATA
   " 8) the remaining text after the tag (rest)
   " (These numbers correspond to the indexes in matched list m)
-  "let tag_mx = '^\(\_.\{-}\)\%(\%(<\(/\?\)\([^ !/\t\r\n>]\+\)\(\%([ \t\r\n]*[^ />\t\r\n=]\+[ \t\r\n]*\%(=[ \t\r\n]*\%([^"'' >\t]\+\|"[^"]*"\|''[^'']*''\)\)\)*\)[ \t\r\n]*\(/\?\)>\)\|\%(<!\[\(CDATA\)\[\(.\{-}\)\]\]>\)\|\(<!--.\{-}-->\)\)\(.*\)'
-  let tag_mx = '^\(\_.\{-}\)\%(\%(<\(/\?\)\([^ !/\t\r\n>]\+\)\(\%([ \t\r\n]*[^ />\t\r\n=]\+[ \t\r\n]*=[ \t\r\n]*\%([^"'' >\t]\+\|"[^"]*"\|''[^'']*''\)\|[ \t\r\n]\+[^ />\t\r\n=]\+[ \t\r\n]*\)*\)[ \t\r\n]*\(/\?\)>\)\|\%(<!\[\(CDATA\)\[\(.\{-}\)\]\]>\)\|\(<!--.\{-}-->\)\)\(.*\)'
+  let tag_mx = '^\(\_.\{-}\)\%(\%(<\(/\?\)\([^!/>[:space:]]\+\)\(\%([[:space:]]*[^/>=[:space:]]\+[[:space:]]*=[[:space:]]*\%([^"'' >\t]\+\|"[^"]*"\|''[^'']*''\)\|[[:space:]]\+[^/>=[:space:]]\+[[:space:]]*\)*\)[[:space:]]*\(/\?\)>\)\|\%(<!\[\(CDATA\)\[\(.\{-}\)\]\]>\)\|\(<!--.\{-}-->\)\)\(.*\)'
 
   while len(a:ctx['xml']) > 0
     let m = matchlist(a:ctx.xml, tag_mx)
@@ -258,7 +257,7 @@ function! s:parse_tree(ctx, top)
 
     let node = deepcopy(s:template)
     let node.name = tag_name
-    let attr_mx = '\([^ \t\r\n=]\+\)\s*\%(=\s*''\([^'']*\)''\|=\s*"\([^"]*\)"\|=\s*\(\w\+\)\|\)'
+    let attr_mx = '\([^=[:space:]]\+\)\s*\%(=\s*''\([^'']*\)''\|=\s*"\([^"]*\)"\|=\s*\(\w\+\)\|\)'
     while len(attrs) > 0
       let attr_match = matchlist(attrs, attr_mx)
       if len(attr_match) == 0

@@ -28,7 +28,7 @@ function! webapi#feed#parseURL(url)
       call add(items, {
       \  "title": s:attr(item, 'title'),
       \  "link": s:attr(item, 'link'),
-      \  "content": : s:attr(item, 'description'),
+      \  "content": s:attr(item, 'description'),
       \  "id": s:attr(item, 'guid'),
       \  "date": s:attr(item, 'dc:date'),
       \})

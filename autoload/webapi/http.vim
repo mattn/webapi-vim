@@ -158,19 +158,19 @@ function! webapi#http#get(url, ...)
     while res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established' || res =~ '^HTTP/1\.\d 100 Continue'
       let pos = stridx(res, "\r\n\r\n")
       if pos != -1
-        let res = res[pos+4:]
+        let res = strpart(res, pos+4)
       else
         let pos = stridx(res, "\n\n")
-        let res = res[pos+2:]
+        let res = strpart(res, pos+2)
       endif
     endwhile
   endif
   let pos = stridx(res, "\r\n\r\n")
   if pos != -1
-    let content = res[pos+4:]
+    let content = strpart(res, pos+4)
   else
     let pos = stridx(res, "\n\n")
-    let content = res[pos+2:]
+    let content = strpart(res, pos+2)
   endif
   return {
   \ "header" : split(res[:pos-1], '\r\?\n'),
@@ -225,19 +225,19 @@ function! webapi#http#post(url, ...)
     while res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established' || res =~ '^HTTP/1\.\d 100 Continue'
       let pos = stridx(res, "\r\n\r\n")
       if pos != -1
-        let res = res[pos+4:]
+        let res = strpart(res, pos+4)
       else
         let pos = stridx(res, "\n\n")
-        let res = res[pos+2:]
+        let res = strpart(res, pos+2)
       endif
     endwhile
   endif
   let pos = stridx(res, "\r\n\r\n")
   if pos != -1
-    let content = res[pos+4:]
+    let content = strpart(res, pos+4)
   else
     let pos = stridx(res, "\n\n")
-    let content = res[pos+2:]
+    let content = strpart(res, pos+2)
   endif
   return {
   \ "header" : split(res[:pos-1], '\r\?\n'),

@@ -75,7 +75,11 @@ function! webapi#json#decode(json)
   endif
   let json = substitute(json, '\n', '', 'g')
   let json = substitute(json, '\\u34;', '\\"', 'g')
-  let json = substitute(json, '\\u\(\x\x\x\x\)', '\=s:nr2enc_char("0x".submatch(1))', 'g')
+  if v:version >= 703 && has('patch780')
+    let json = substitute(json, '\\u\(\x\x\x\x\)', '\=nr2char(str2nr(submatch(1), 16), 1)', 'g')
+  else
+    let json = substitute(json, '\\u\(\x\x\x\x\)', '\=s:nr2enc_char("0x".submatch(1))', 'g')
+  endif
   if get(g:, 'webapi#json#allow_nil', 0) != 0
     let tmp = '__WEBAPI_JSON__'
     while 1

@@ -40,7 +40,7 @@ function! webapi#feed#parseURL(url)
       \  "link": item.childNode('link').attr['href'],
       \  "content": s:attr(item, 'content'),
       \  "id": s:attr(item, 'id'),
-      \  "date": s:attr(item, 'update'),
+      \  "date": s:attr(item, 'updated'),
       \})
     endfor
   endif

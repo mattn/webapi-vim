@@ -106,6 +106,7 @@ function! webapi#json#encode(val)
     return a:val
   elseif type(a:val) == 1
     let json = '"' . escape(a:val, '\"') . '"'
+    let json = substitute(json, '\([[:cntrl:]]\)', '\=printf("\x%02d", char2nr(submatch(1)))', 'g')
     let json = substitute(json, "\r", '\\r', 'g')
     let json = substitute(json, "\n", '\\n', 'g')
     let json = substitute(json, "\t", '\\t', 'g')

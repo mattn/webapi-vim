@@ -176,8 +176,7 @@ function! s:add_node_params(args)
     call add(params.child, param)
     unlet Arg
   endfor
-  call add(methodCall.child, params)
-  return
+  return params
 endfunction
 
 function! webapi#xmlrpc#call(uri, func, args)
@@ -186,7 +185,7 @@ function! webapi#xmlrpc#call(uri, func, args)
   call methodName.value(a:func)
   call add(methodCall.child, methodName)
   if !empty(a:args)
-       s:add_node_params(args)
+    call add(methodCall.child, s:add_node_params(a:args))
   endif
   let xml = iconv(methodCall.toString(), &encoding, "utf-8")
   let res = webapi#http#post(a:uri, xml, {"Content-Type": "text/xml"})

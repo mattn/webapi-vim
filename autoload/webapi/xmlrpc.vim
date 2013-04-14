@@ -10,6 +10,11 @@ set cpo&vim
 
 let s:system = function(get(g:, 'webapi#system_function', 'system'))
 
+let s:xml_decl = ''
+function! webapi#xmlrpc#set_xml_decl(xml_decl)
+  let s:xml_decl = a:xml_decl
+endfunction
+
 function! webapi#xmlrpc#nil()
   return 0
 endfunction
@@ -188,7 +193,7 @@ function! webapi#xmlrpc#call(uri, func, args)
     call add(methodCall.child, s:add_node_params(a:args))
   endif
   let xml = iconv(methodCall.toString(), &encoding, "utf-8")
-  let res = webapi#http#post(a:uri, xml, {"Content-Type": "text/xml"})
+  let res = webapi#http#post(a:uri, s:xml_decl . xml, {"Content-Type": "text/xml"})
   let dom = webapi#xml#parse(res.content)
   if len(dom.find('fault'))
     throw s:to_fault(dom)

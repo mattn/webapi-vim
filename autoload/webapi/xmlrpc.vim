@@ -22,35 +22,56 @@ function! webapi#xmlrpc#false()
   return 0
 endfunction
 
+function! s:get_childNode(node)
+  let child = a:node.childNode('value').childNode()
+  if empty(child)
+    let child = a:node.childNode('value')
+  endif
+  return child
+endfunction
+
 function! s:from_value(value)
   let value = a:value
   if value.name == 'methodResponse'
     let param = value.childNode('params').childNodes('param')
     if len(param) == 1
-      return s:from_value(param[0].childNode('value').childNode())
+      return s:from_value(s:get_childNode(param[0]))
     else
       let ret = []
       for v in param
-        call add(ret, s:from_value(v.childNode('value').childNode()))
+        call add(ret, s:from_value(s:get_childNode(v)))
       endfor
       return ret
     endif
   elseif value.name == 'string'
     return value.value()
+  elseif value.name == 'base64'
+    return value.value()
+  elseif value.name == 'dateTime.iso8601'
+    return value.value()
+  elseif value.name == 'boolean'
+    return 0+substitute(value.value(), "[ \n\r]", '', 'g')
   elseif value.name == 'int'
+    return 0+substitute(value.value(), "[ \n\r]", '', 'g')
+  elseif value.name == 'i4'
     return 0+substitute(value.value(), "[ \n\r]", '', 'g')
   elseif value.name == 'double'
     return str2float(substitute(value.value(), "[ \n\r]", '', 'g'))
   elseif value.name == 'struct'
     let ret = {}
     for member in value.childNodes('member')
-      let ret[member.childNode('name').value()] = s:from_value(member.childNode('value').childNode())
+      let ret[member.childNode('name').value()] = s:from_value(s:get_childNode(member))
     endfor
     return ret
   elseif value.name == 'array'
     let ret = []
     for v in value.childNode('data').childNodes('value')
-      call add(ret, s:from_value(v.childNode()))
+      let child = v.childNode()
+      if !empty(child)
+        call add(ret, s:from_value(child))
+      else
+        call add(ret, v.value())
+      endif
     endfor
     return ret
   elseif value.name == 'nil'
@@ -58,6 +79,8 @@ function! s:from_value(value)
       return function('webapi#xmlrpc#nil')
     endif
     return 0
+  elseif value.name == 'value'
+    return value.value()
   else
     throw "unknown type: ".value.name
   endif

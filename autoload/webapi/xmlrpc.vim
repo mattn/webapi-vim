@@ -210,7 +210,8 @@ function! webapi#xmlrpc#call(uri, func, args)
   if !empty(a:args)
     call add(methodCall.child, s:add_node_params(a:args))
   endif
-  let xml = iconv(methodCall.toString(), &encoding, "utf-8")
+  let xml = '<?xml encoding="utf-8"?>'
+  let xml .= iconv(methodCall.toString(), &encoding, "utf-8")
   let res = webapi#http#post(a:uri, xml, {"Content-Type": "text/xml"})
   let dom = webapi#xml#parse(res.content)
   if len(dom.find('fault'))

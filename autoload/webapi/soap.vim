@@ -86,16 +86,30 @@ endfunction
 function! webapi#soap#proxy(url)
   let dom = webapi#xml#parseURL(a:url)
   let l:api = {}
-  let action = dom.childNode("service").find("soap:address").attr["location"]
-  let operations = dom.childNode("portType").childNodes("operation")
+  let ns = substitute(dom.name, ':\zs.*', '', '')
+  let service = dom.childNode(ns."service")
+  if empty(service)
+    let action = ''
+  else
+    let address = dom.childNode(ns."service").find("soap:address")
+    if empty(address)
+      let action = ''
+    else
+      let action = dom.childNode(ns."service").find("soap:address").attr["location"]
+    endif
+  endif
+  if action == ""
+    return {}
+  endif
+  let operations = dom.childNode(ns."portType").childNodes(ns."operation")
   for operation in operations
     let name = operation.attr["name"]
-    let inp = substitute(operation.childNode("input").attr["message"], "^tns:", "", "")
-    let out = substitute(operation.childNode("output").attr["message"], "^tns:", "", "")
-    let message = dom.childNode("message", {"name": inp})
+    let inp = substitute(operation.childNode(ns."input").attr["message"], "^tns:", "", "")
+    let out = substitute(operation.childNode(ns."output").attr["message"], "^tns:", "", "")
+    let message = dom.childNode(ns."message", {"name": inp})
     let args = []
-    for part in message.childNodes("part")
-      call add(args, {"name": part.attr["name"], "type": part.attr["type"]})
+    for part in message.childNodes(ns."part")
+      call add(args, {"name": part.attr["name"], "type": has_key(part.attr, "type") ? part.attr["type"] : "xsd:string"})
     endfor
     let argnames = []
     let code = ""

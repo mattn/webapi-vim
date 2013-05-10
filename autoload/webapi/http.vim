@@ -172,8 +172,18 @@ function! webapi#http#get(url, ...)
     let pos = stridx(res, "\n\n")
     let content = strpart(res, pos+2)
   endif
+  let header = split(res[:pos-1], '\r\?\n')
+  let matched = matchlist(get(header, 0), '^HTTP/1\.\d\s\+\(\d\+\)\s\+\(.*\)')
+  if !empty(matched)
+    let [status, message] = matched[1 : 2]
+    call remove(header, 0)
+  else
+    let [status, message] = ['200', 'OK']
+  endif
   return {
-  \ "header" : split(res[:pos-1], '\r\?\n'),
+  \ "status" : status,
+  \ "message" : message,
+  \ "header" : header,
   \ "content" : content
   \}
 endfunction
@@ -239,8 +249,18 @@ function! webapi#http#post(url, ...)
     let pos = stridx(res, "\n\n")
     let content = strpart(res, pos+2)
   endif
+  let header = split(res[:pos-1], '\r\?\n')
+  let matched = matchlist(get(header, 0), '^HTTP/1\.\d\s\+\(\d\+\)\s\+\(.*\)')
+  if !empty(matched)
+    let [status, message] = matched[1 : 2]
+    call remove(header, 0)
+  else
+    let [status, message] = ['200', 'OK']
+  endif
   return {
-  \ "header" : split(res[:pos-1], '\r\?\n'),
+  \ "status" : status,
+  \ "message" : message,
+  \ "header" : header,
   \ "content" : content
   \}
 endfunction

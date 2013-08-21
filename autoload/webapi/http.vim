@@ -178,7 +178,11 @@ function! webapi#http#get(url, ...)
     let [status, message] = matched[1 : 2]
     call remove(header, 0)
   else
-    let [status, message] = ['200', 'OK']
+    if v:shell_error || len(matched)
+      let [status, message] = ['500', "Couldn't connect to host"]
+    else
+      let [status, message] = ['200', 'OK']
+    endif
   endif
   return {
   \ "status" : status,
@@ -255,7 +259,11 @@ function! webapi#http#post(url, ...)
     let [status, message] = matched[1 : 2]
     call remove(header, 0)
   else
-    let [status, message] = ['200', 'OK']
+    if v:shell_error || len(matched)
+      let [status, message] = ['500', "Couldn't connect to host"]
+    else
+      let [status, message] = ['200', 'OK']
+    endif
   endif
   return {
   \ "status" : status,

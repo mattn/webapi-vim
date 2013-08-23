@@ -1,8 +1,8 @@
 webapi-vim: Vim Interface to Web API
 
 Description:
-    Interface to WEB APIs.
-    Currently this library support following protocols.
+    An Interface to WEB APIs.
+    Currently this library supports the following protocols:
 
     * Basic HTTP
     * OAuth
@@ -14,14 +14,14 @@ Description:
     This library contains:
         XML Parser
         HTML Parser(Hack Way)
-        JSON Praser
-        BASE64 Hash Algorism
-        SHA1 Hash Algorism
-        HMAC HASH Algorism
+        JSON Parser
+        BASE64 Hash Algorithm
+        SHA1 Hash Algorithm
+        HMAC HASH Algorithm
         Bit Operation Library
         Converter for "UTF-8 to Unicode"
 
-Require:
+Requirements:
 
     curl command : http://curl.haxx.se/
 

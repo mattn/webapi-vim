@@ -46,14 +46,17 @@ function! s:nr2hex(nr)
   return r
 endfunction
 
-function! s:urlencode_char(c)
-  let utf = iconv(a:c, &encoding, "utf-8")
-  if utf == ""
-    let utf = a:c
+function! s:urlencode_char(c, ...)
+  let is_binary = get(a:000, 1)
+  if !is_binary
+    let c = iconv(a:c, &encoding, "utf-8")
+    if c == ""
+      let c = a:c
+    endif
   endif
   let s = ""
-  for i in range(strlen(utf))
-    let s .= printf("%%%02X", char2nr(utf[i]))
+  for i in range(strlen(c))
+    let s .= printf("%%%02X", char2nr(c[i]))
   endfor
   return s
 endfunction
@@ -69,7 +72,8 @@ function! webapi#http#escape(str)
   return substitute(a:str, '[^a-zA-Z0-9_.~/-]', '\=s:urlencode_char(submatch(0))', 'g')
 endfunction
 
-function! webapi#http#encodeURI(items)
+function! webapi#http#encodeURI(items, ...)
+  let is_binary = get(a:000, 1)
   let ret = ''
   if type(a:items) == 4
     for key in sort(keys(a:items))
@@ -82,7 +86,7 @@ function! webapi#http#encodeURI(items)
       let ret .= item
     endfor
   else
-    let ret = substitute(a:items, '[^a-zA-Z0-9_.~-]', '\=s:urlencode_char(submatch(0))', 'g')
+    let ret = substitute(a:items, '[^a-zA-Z0-9_.~-]', '\=s:urlencode_char(submatch(0), is_binary)', 'g')
   endif
   return ret
 endfunction

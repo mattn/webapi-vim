@@ -179,7 +179,7 @@ function! s:parse_node(target, parent)
       call s:parse_node(entry, node)
       call add(a:target.entry, entry)
     elseif type(a:target[node.name]) == 3
-      call add(a:target[node.name], parent.value())
+      call add(a:target[node.name], a:parent.value())
     else
       let a:target[node.name] = node.value()
     endif

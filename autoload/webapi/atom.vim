@@ -82,15 +82,29 @@ endfunction
 
 function! s:createXml(entry)
   let entry = webapi#xml#createElement("entry")
-  let entry.attr["xmlns"] = "http://purl.org/atom/ns#"
+  let entry.attr["xmlns"]     = "http://purl.org/atom/ns#"
+  let entry.attr["xmlns:app"] = "http://www.w3.org/2007/app"
 
   for key in keys(a:entry)
-    if type(a:entry[key]) == 1 && key !~ '\.'
+    let l:keytype = type(a:entry[key])
+    if l:keytype == 1 && key !~ '\.'
       let node = webapi#xml#createElement(key)
       call node.value(a:entry[key])
       if key == "content"
         let node.attr["type"] = a:entry['content.type']
         let node.attr["mode"] = a:entry['content.mode']
+      endif
+      call add(entry.child, node)
+    elseif l:keytype == 4
+      let node = webapi#xml#createElement(key)
+      if key == "app:control"
+        let l:draft_node = webapi#xml#createElement("app:draft")
+        if exists("a:entry['app:control']['app:draft']")
+          call l:draft_node.value(a:entry['app:control']['app:draft'])
+        else
+          call l:draft_node.value('no')
+        endif
+        call add(node.child, l:draft_node)
       endif
       call add(entry.child, node)
     endif

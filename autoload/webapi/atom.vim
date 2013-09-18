@@ -95,6 +95,14 @@ function! s:createXml(entry)
         let node.attr["mode"] = a:entry['content.mode']
       endif
       call add(entry.child, node)
+    elseif l:keytype == 3
+      if key == "category"
+        for l:category in a:entry['category']
+          let node = webapi#xml#createElement(key)
+          let node.attr["term"] = l:category
+          call add(entry.child, node)
+        endfor
+      endif
     elseif l:keytype == 4
       let node = webapi#xml#createElement(key)
       if key == "app:control"

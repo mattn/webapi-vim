@@ -202,9 +202,9 @@ function! s:parse_node(target, parent)
       call add(a:target.entry, entry)
     elseif node.name == 'category'
       let l:category           = deepcopy(s:category_template)
-      let l:category['term']   = exists("node.attr['term']")   ? node.attr['term']   : ''
-      let l:category['scheme'] = exists("node.attr['scheme']") ? node.attr['scheme'] : ''
-      let l:category['label']  = exists("node.attr['label']")  ? node.attr['label']  : ''
+      let l:category['term']   = has_key(node.attr, 'term')   ? node.attr['term']   : ''
+      let l:category['scheme'] = has_key(node.attr, 'scheme') ? node.attr['scheme'] : ''
+      let l:category['label']  = has_key(node.attr, 'label')  ? node.attr['label']  : ''
       call add(a:target.category, l:category)
     elseif type(a:target[node.name]) == 3
       call add(a:target[node.name], a:parent.value())

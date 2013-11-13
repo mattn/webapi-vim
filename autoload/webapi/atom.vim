@@ -44,6 +44,7 @@ let s:entry_template = {
 \ "title": "",
 \ "link": [],
 \ "category": [],
+\ "app:control": {},
 \ "author": [],
 \ "contirubutor": [],
 \ "copyright": "",
@@ -58,6 +59,7 @@ let s:entry_template = {
 for s:name in ['author', 'link', 'category', 'feed', 'entry']
   for s:key in keys(eval('s:'.s:name.'_template'))
     let key = substitute(s:key, '\.\(.\)', '\=toupper(submatch(1))', '')
+    let key = substitute(key, ':\(.\)', '\=toupper(submatch(1))', '')
     exe "function s:".s:name."_template.set".toupper(key[0]).key[1:]."(v) dict\n"
     \. "  let self['".s:key."'] = a:v\n"
     \. "endfunction\n"
@@ -206,6 +208,13 @@ function! s:parse_node(target, parent)
       let l:category['scheme'] = has_key(node.attr, 'scheme') ? node.attr['scheme'] : ''
       let l:category['label']  = has_key(node.attr, 'label')  ? node.attr['label']  : ''
       call add(a:target.category, l:category)
+    elseif node.name == 'app:control'
+      for l:item in node.child
+        if type(l:item) == 4 && l:item.name == 'app:draft'
+          let a:target['app:control'] = {'app:draft': l:item.child[0]}
+        endif
+        unlet l:item
+      endfor
     elseif type(a:target[node.name]) == 3
       call add(a:target[node.name], a:parent.value())
     else

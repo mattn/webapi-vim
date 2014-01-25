@@ -4,13 +4,7 @@ set cpo&vim
 let s:template = { 'name': '', 'attr': {}, 'child': [] }
 
 function! s:nr2byte(nr)
-  if a:nr < 0x80
-    return nr2char(a:nr)
-  elseif a:nr < 0x800
-    return nr2char(a:nr/64+192).nr2char(a:nr%64+128)
-  else
-    return nr2char(a:nr/4096%16+224).nr2char(a:nr/64%64+128).nr2char(a:nr%64+128)
-  endif
+    return printf('%c', a:nr)
 endfunction
 
 function! s:nr2enc_char(charcode)
@@ -25,13 +19,7 @@ function! s:nr2enc_char(charcode)
 endfunction
 
 function! s:nr2hex(nr)
-  let n = a:nr
-  let r = ""
-  while n
-    let r = '0123456789ABCDEF'[n % 16] . r
-    let n = n / 16
-  endwhile
-  return r
+    return printf('%x', a:nr)
 endfunction
 
 function! s:decodeEntityReference(str)

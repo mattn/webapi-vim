@@ -38,7 +38,6 @@ function! s:decodeEntityReference(str, ...)
   let str = a:str
   let str = substitute(str, '&gt;', '>', 'g')
   let str = substitute(str, '&lt;', '<', 'g')
-  echomsg get(g:, 'webapi#xml#decodeAsHTML', 0)
   if get(g:, 'webapi#xml#decodeAsHTML', 0)
     let str = substitute(str, '&quot;', '"', 'g')
     let str = substitute(str, '&apos;', "'", 'g')

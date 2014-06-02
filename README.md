@@ -30,7 +30,7 @@ curl command : http://curl.haxx.se/
 
 or 
 
-wget command : http://curl.haxx.se/
+wget command : https://www.gnu.org/software/wget/
 
 ## Thanks
 

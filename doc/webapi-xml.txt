@@ -26,7 +26,7 @@ parse(content)				*webapi-xml.parse()*
 parseFile(file)				*webapi-xml.parseFile()*
 	Parse html file into DOM object.
 
-parseURI(url)				*webapi-xml.parseURI()*
+parseURL(url)				*webapi-xml.parseURL()*
 	Get and parse html into DOM object.
 
 ------------------------------------------------------------------------------

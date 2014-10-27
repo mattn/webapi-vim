@@ -24,13 +24,18 @@ This library contains:
 * Bit Operation Library
 * Converter for "UTF-8 to Unicode"
 
+## Installation
+
+Copy the files in this library to your `.vim` directory. Alternatively, if you
+use pathogen, copy this folder to your `.vim/bundle` directory.
+
 ## Requirements
 
-curl command : http://curl.haxx.se/
+You need the `curl` command, which can be downloaded from here: http://curl.haxx.se/
 
-or 
+\*or\*
 
-wget command : https://www.gnu.org/software/wget/
+the `wget` command, available here: https://www.gnu.org/software/wget/
 
 ## Thanks
 

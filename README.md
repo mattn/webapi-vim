@@ -26,9 +26,8 @@ This library contains:
 
 ## Installation
 
-Copy the files in this library to a folder in your `.vim/plugin` directory.
-Alternatively, if you use pathogen, copy this folder to your `.vim/bundle`
-directory.
+Copy the files in this library to your `.vim` directory. Alternatively, if you
+use pathogen, copy this folder to your `.vim/bundle` directory.
 
 ## Requirements
 

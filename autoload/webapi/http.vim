@@ -132,7 +132,7 @@ function! webapi#http#get(url, ...)
     let url .= "?" . getdatastr
   endif
   if executable('curl')
-    let command = printf('curl %s -s -k -i', follow ? '-L' : '')
+    let command = printf('curl -q %s -s -k -i', follow ? '-L' : '')
     let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(headdata)
       if has('win32')
@@ -209,7 +209,7 @@ function! webapi#http#post(url, ...)
   endif
   let file = tempname()
   if executable('curl')
-    let command = printf('curl %s -s -k -i -X %s', (follow ? '-L' : ''), len(method) ? method : 'POST')
+    let command = printf('curl -q %s -s -k -i -X %s', (follow ? '-L' : ''), len(method) ? method : 'POST')
     let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(headdata)
       if has('win32')

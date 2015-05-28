@@ -141,6 +141,9 @@ function! webapi#http#get(url, ...)
         let command .= " -H " . quote . key . ": " . headdata[key] . quote
       endif
     endfor
+    if exists("g:webapi#socks5")
+      let command .= " --socks5 ". g:webapi#socks5
+    endif
     let command .= " ".quote.url.quote
     let res = s:system(command)
   elseif executable('wget')

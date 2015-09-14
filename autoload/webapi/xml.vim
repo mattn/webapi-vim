@@ -219,11 +219,12 @@ function! s:parse_tree(ctx, top)
   "    7) text content of CDATA
   " 8) the remaining text after the tag (rest)
   " (These numbers correspond to the indexes in matched list m)
-  let tag_mx = '^\(\_.\{-}\)\%(\%(<\(/\?\)\([^!/>[:space:]]\+\)\(\%([[:space:]]*[^/>=[:space:]]\+[[:space:]]*=[[:space:]]*\%([^"'' >\t]\+\|"[^"]*"\|''[^'']*''\)\|[[:space:]]\+[^/>=[:space:]]\+[[:space:]]*\)*\)[[:space:]]*\(/\?\)>\)\|\%(<!\[\(CDATA\)\[\(.\{-}\)\]\]>\)\|\(<!--.\{-}-->\)\)\(.*\)'
+  let tag_mx = '^\(\_.\{-}\)\%(\%(<\(/\?\)\([^!/>[:space:]]\+\)\(\%([[:space:]]*[^/>=[:space:]]\+[[:space:]]*=[[:space:]]*\%([^"'' >\t]\+\|"[^"]*"\|''[^'']*''\)\|[[:space:]]\+[^/>=[:space:]]\+[[:space:]]*\)*\)[[:space:]]*\(/\?\)>\)\|\%(<!\[\(CDATA\)\[\(.\{-}\)\]\]>\)\|\(<!--.\{-}-->\)\)'
 
   while len(a:ctx['xml']) > 0
     let m = matchlist(a:ctx.xml, tag_mx)
     if empty(m) | break | endif
+    let a:ctx.xml = a:ctx.xml[len(m[0]) :]
     let is_end_tag = m[2] == '/' && m[5] == ''
     let is_start_and_end_tag = m[2] == '' && m[5] == '/'
     let tag_name = m[3]
@@ -246,14 +247,12 @@ function! s:parse_tree(ctx, top)
 
     " comment tag
     if m[8] != ''
-        let a:ctx.xml = m[9]
         continue
     endif
 
     " if element is a CDATA
     if m[6] != ''
         let content .= m[7]
-        let a:ctx.xml = m[9]
         continue
     endif
 
@@ -283,7 +282,6 @@ function! s:parse_tree(ctx, top)
       " opening tag, continue parsing its contents
       call add(stack, node)
     endif
-    let a:ctx['xml'] = m[9]
   endwhile
 endfunction
 

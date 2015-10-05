@@ -241,7 +241,6 @@ function! s:parse_tree(ctx, top)
       if len(stack) " TODO: checking whether opened tag is exist. 
         call remove(stack, -1)
       endif
-      let a:ctx['xml'] = m[9]
       continue
     endif
 

@@ -65,6 +65,10 @@ endfunction
 
 function! webapi#json#decode(json) abort
   let json = iconv(a:json, "utf-8", &encoding)
+  if exists('*jsondecode')
+    " TODO: handle encoding if vim change the behavior
+    return jsondecode(json)
+  endif
   if get(g:, 'webapi#json#parse_strict', 1) == 1 && substitute(substitute(substitute(
     \ json,
     \ '\\\%(["\\/bfnrt]\|u[0-9a-fA-F]\{4}\)', '\@', 'g'),
@@ -102,6 +106,9 @@ function! webapi#json#decode(json) abort
 endfunction
 
 function! webapi#json#encode(val) abort
+  if exists('*jsonencode')
+    return jsonencode(a:val)
+  endif
   if type(a:val) == 0
     return a:val
   elseif type(a:val) == 1

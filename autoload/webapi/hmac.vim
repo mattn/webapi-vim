@@ -8,23 +8,23 @@
 " @param mixed text List or String
 " @param Funcref hash   function digest_hex(key:List, text:List):String
 " @param Number blocksize
-function webapi#hmac#hmac(key, text, hash, blocksize)
+function webapi#hmac#hmac(key, text, hash, blocksize) abort
   let key = (type(a:key) == type("")) ? s:str2bytes(a:key) : a:key
   let text = (type(a:text) == type("")) ? s:str2bytes(a:text) : a:text
   return s:Hmac(key, text, a:hash, a:blocksize)
 endfunction
 
-function webapi#hmac#md5(key, text)
+function webapi#hmac#md5(key, text) abort
   return webapi#hmac#hmac(a:key, a:text, 'webapi#md5#md5bin', 64)
 endfunction
 
-function webapi#hmac#sha1(key, text)
+function webapi#hmac#sha1(key, text) abort
   return webapi#hmac#hmac(a:key, a:text, 'webapi#sha1#sha1bin', 64)
 endfunction
 
 " http://www.ietf.org/rfc/rfc2202.txt
 " Test Cases for HMAC-MD5 and HMAC-SHA-1
-function webapi#hmac#test()
+function webapi#hmac#test() abort
   " Test Cases for HMAC-MD5
   call s:test("md5: 1", "webapi#hmac#md5",
         \ repeat("\x0b", 16),
@@ -86,7 +86,7 @@ function webapi#hmac#test()
         \ "e8e99d0f45237d786d6bbaa7965c7808bbff1a91")
 endfunction
 
-function s:test(name, func, key, data, digest)
+function s:test(name, func, key, data, digest) abort
   let result = call(a:func, [a:key, a:data])
   echo "test_case:" a:name
   echo "expect:" a:digest
@@ -104,7 +104,7 @@ endfunction
 " @param List text
 " @param Funcref hash
 " @param Number blocksize
-function! s:Hmac(key, text, hash, blocksize)
+function! s:Hmac(key, text, hash, blocksize) abort
   let key = a:key
   if len(key) > a:blocksize
     let key = s:hex2bytes(call(a:hash, [key]))
@@ -120,11 +120,11 @@ function! s:Hmac(key, text, hash, blocksize)
   return hmac
 endfunction
 
-function! s:str2bytes(str)
+function! s:str2bytes(str) abort
   return map(range(len(a:str)), 'char2nr(a:str[v:val])')
 endfunction
 
-function! s:hex2bytes(str)
+function! s:hex2bytes(str) abort
   return map(split(a:str, '..\zs'), 'str2nr(v:val, 16)')
 endfunction
 
@@ -147,7 +147,7 @@ let s:xor = [
       \ [0xF, 0xE, 0xD, 0xC, 0xB, 0xA, 0x9, 0x8, 0x7, 0x6, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0]
       \ ]
 
-function! s:bitwise_xor(a, b)
+function! s:bitwise_xor(a, b) abort
   let a = a:a < 0 ? a:a - 0x80000000 : a:a
   let b = a:b < 0 ? a:b - 0x80000000 : a:b
   let r = 0

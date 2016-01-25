@@ -7,19 +7,19 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! webapi#json#null()
+function! webapi#json#null() abort
   return 0
 endfunction
 
-function! webapi#json#true()
+function! webapi#json#true() abort
   return 1
 endfunction
 
-function! webapi#json#false()
+function! webapi#json#false() abort
   return 0
 endfunction
 
-function! s:nr2byte(nr)
+function! s:nr2byte(nr) abort
   if a:nr < 0x80
     return nr2char(a:nr)
   elseif a:nr < 0x800
@@ -29,7 +29,7 @@ function! s:nr2byte(nr)
   endif
 endfunction
 
-function! s:nr2enc_char(charcode)
+function! s:nr2enc_char(charcode) abort
   if &encoding == 'utf-8'
     return nr2char(a:charcode)
   endif
@@ -40,7 +40,7 @@ function! s:nr2enc_char(charcode)
   return char
 endfunction
 
-function! s:fixup(val, tmp)
+function! s:fixup(val, tmp) abort
   if type(a:val) == 0
     return a:val
   elseif type(a:val) == 1
@@ -63,7 +63,7 @@ function! s:fixup(val, tmp)
   endif
 endfunction
 
-function! webapi#json#decode(json)
+function! webapi#json#decode(json) abort
   let json = iconv(a:json, "utf-8", &encoding)
   if get(g:, 'webapi#json#parse_strict', 1) == 1 && substitute(substitute(substitute(
     \ json,
@@ -101,7 +101,7 @@ function! webapi#json#decode(json)
   return ret
 endfunction
 
-function! webapi#json#encode(val)
+function! webapi#json#encode(val) abort
   if type(a:val) == 0
     return a:val
   elseif type(a:val) == 1

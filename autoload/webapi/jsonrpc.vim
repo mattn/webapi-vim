@@ -8,7 +8,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! webapi#jsonrpc#call(uri, func, args)
+function! webapi#jsonrpc#call(uri, func, args) abort
   let data = webapi#json#encode({
   \ 'jsonrpc': '2.0',
   \ 'method':  a:func,
@@ -31,7 +31,7 @@ function! webapi#jsonrpc#call(uri, func, args)
   throw "Parse Error"
 endfunction
 
-function! webapi#jsonrpc#wrap(contexts)
+function! webapi#jsonrpc#wrap(contexts) abort
   let api = {}
   for context in a:contexts
     let target = api

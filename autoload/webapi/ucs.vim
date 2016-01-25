@@ -12,7 +12,7 @@ let s:utf8len = [
 \ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,6,6,0,0,
 \]
 
-function! webapi#ucs#byte2nr(byte)
+function! webapi#ucs#byte2nr(byte) abort
   let p = a:byte
   let n0 = char2nr(p[0])
   if n0 < 0x80

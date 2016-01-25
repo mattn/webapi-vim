@@ -1,7 +1,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! webapi#bit#dec2bin(v)
+function! webapi#bit#dec2bin(v) abort
   let v = a:v
   if v == 0 | return 0 | endif
   let ret = ""
@@ -13,7 +13,7 @@ function! webapi#bit#dec2bin(v)
   return ret
 endfunction
 
-function! webapi#bit#bin2dec(v)
+function! webapi#bit#bin2dec(v) abort
   let v = a:v
   if len(v) == 0 | return 0 | endif
   let i = 1
@@ -27,19 +27,19 @@ function! webapi#bit#bin2dec(v)
   return ret
 endfunction
 
-function! webapi#bit#or(a,b)
+function! webapi#bit#or(a,b) abort
   let a = webapi#bit#dec2bin(a:a)
   let b = webapi#bit#dec2bin(a:b)
   return webapi#bit#bin2dec(tr((a + b), '2', '1'))
 endfunction
 
-function! webapi#bit#and(a,b)
+function! webapi#bit#and(a,b) abort
   let a = webapi#bit#dec2bin(a:a)
   let b = webapi#bit#dec2bin(a:b)
   return webapi#bit#bin2dec(tr((a + b), '21', '10'))
 endfunction
 
-function! webapi#bit#shift(a,b)
+function! webapi#bit#shift(a,b) abort
   let a = webapi#bit#dec2bin(a:a)
   let a = repeat('0', 32-len(a)) . a
   if a:b < 0

@@ -68,7 +68,7 @@ for s:name in ['author', 'link', 'category', 'feed', 'entry']
     \. "endfunction\n"
   endfor
 endfor
-function s:entry_template.setContentFromFile(file) dict
+function s:entry_template.setContentFromFile(file) dict abort
   let quote = &shellxquote == '"' ?  "'" : '"'
   let bits = substitute(s:system("xxd -ps ".quote.a:file.quote), "[ \n\r]", '', 'g')
   let self['mode'] = "base64"
@@ -78,11 +78,11 @@ endfunction
 unlet s:name
 unlet s:key
 
-function! webapi#atom#newEntry()
+function! webapi#atom#newEntry() abort
   return deepcopy(s:entry_template)
 endfunction
 
-function! s:createXml(entry)
+function! s:createXml(entry) abort
   let entry = webapi#xml#createElement("entry")
   let entry.attr["xmlns"]     = "http://purl.org/atom/ns#"
   let entry.attr["xmlns:app"] = "http://www.w3.org/2007/app"
@@ -123,7 +123,7 @@ function! s:createXml(entry)
   return iconv(xml, &encoding, "utf-8")
 endfunction
 
-function! s:createWsse(user, pass)
+function! s:createWsse(user, pass) abort
   let now = localtime()
   let nonce = webapi#sha1#sha1(now . " " . now)[0:28]
   let created = strftime("%Y-%m-%dT%H:%M:%SZ", now)
@@ -132,7 +132,7 @@ function! s:createWsse(user, pass)
   return 'UsernameToken Username="'.a:user.'", PasswordDigest="'.passworddigest.'", Nonce="'.nonce.'", Created="'.created.'"'
 endfunction
 
-function! webapi#atom#deleteEntry(uri, user, pass)
+function! webapi#atom#deleteEntry(uri, user, pass) abort
   let res = webapi#http#post(a:uri, "",
     \ {
     \   "Content-Type": "application/x.atom+xml",
@@ -141,7 +141,7 @@ function! webapi#atom#deleteEntry(uri, user, pass)
   return res
 endfunction
 
-function! webapi#atom#updateEntry(uri, user, pass, entry, ...)
+function! webapi#atom#updateEntry(uri, user, pass, entry, ...) abort
   let headdata = a:0 > 0 ? a:000[0] : {}
   let headdata["Content-Type"] = "application/x.atom+xml"
   let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
@@ -153,7 +153,7 @@ function! webapi#atom#updateEntry(uri, user, pass, entry, ...)
   return ''
 endfunction
 
-function! webapi#atom#createEntry(uri, user, pass, entry, ...)
+function! webapi#atom#createEntry(uri, user, pass, entry, ...) abort
   let headdata = a:0 > 0 ? a:000[0] : {}
   let headdata["Content-Type"] = "application/x.atom+xml"
   let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
@@ -166,7 +166,7 @@ function! webapi#atom#createEntry(uri, user, pass, entry, ...)
   return ''
 endfunction
 
-function! s:parse_node(target, parent)
+function! s:parse_node(target, parent) abort
   for node in a:parent.child
     if type(node) != 4 || !has_key(a:target, node.name)
       unlet node
@@ -224,7 +224,7 @@ function! s:parse_node(target, parent)
   endfor
 endfunction
 
-function! webapi#atom#getFeed(uri, user, pass)
+function! webapi#atom#getFeed(uri, user, pass) abort
   let headdata = {}
   if len(a:user) > 0 && len(a:pass) > 0
     let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
@@ -236,7 +236,7 @@ function! webapi#atom#getFeed(uri, user, pass)
   return feed
 endfunction
 
-function! webapi#atom#getService(uri, user, pass)
+function! webapi#atom#getService(uri, user, pass) abort
   let headdata = {}
   if len(a:user) > 0 && len(a:pass) > 0
     let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)
@@ -245,7 +245,7 @@ function! webapi#atom#getService(uri, user, pass)
   return webapi#xml#parse(res.content)
 endfunction
 
-function! webapi#atom#getEntry(uri, user, pass)
+function! webapi#atom#getEntry(uri, user, pass) abort
   let headdata = {}
   if len(a:user) > 0 && len(a:pass) > 0
     let headdata["X-WSSE"] = s:createWsse(a:user, a:pass)

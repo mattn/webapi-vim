@@ -8,7 +8,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! s:soap_call(url, func, ...)
+function! s:soap_call(url, func, ...) abort
   let envelope = webapi#xml#createElement("soap:Envelope")
   let envelope.attr["xmlns:soap"] = "http://schemas.xmlsoap.org/soap/envelope/"
   let envelope.attr["xmlns:xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
@@ -33,7 +33,7 @@ function! s:soap_call(url, func, ...)
   return s:parse_return(dom.find("return"))
 endfunction
 
-function! s:parse_return(node)
+function! s:parse_return(node) abort
   if a:node.attr["xsi:type"] =~ ":Array$"
     let arr = []
     for item in a:node.child
@@ -64,7 +64,7 @@ function! s:parse_return(node)
   return ret
 endfunction
 
-function! s:get_convert_code(arg)
+function! s:get_convert_code(arg) abort
   let code = ''
   let arg = a:arg
   if arg.type == "xsd:string"
@@ -83,7 +83,7 @@ function! s:get_convert_code(arg)
   return code
 endfunction
 
-function! webapi#soap#proxy(url)
+function! webapi#soap#proxy(url) abort
   let dom = webapi#xml#parseURL(a:url)
   let l:api = {}
   let ns = substitute(dom.name, ':\zs.*', '', '')

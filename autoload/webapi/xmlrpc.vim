@@ -10,19 +10,19 @@ set cpo&vim
 
 let s:system = function(get(g:, 'webapi#system_function', 'system'))
 
-function! webapi#xmlrpc#nil()
+function! webapi#xmlrpc#nil() abort
   return 0
 endfunction
 
-function! webapi#xmlrpc#true()
+function! webapi#xmlrpc#true() abort
   return 1
 endfunction
 
-function! webapi#xmlrpc#false()
+function! webapi#xmlrpc#false() abort
   return 0
 endfunction
 
-function! s:get_childNode(node)
+function! s:get_childNode(node) abort
   let child = a:node.childNode('value').childNode()
   if empty(child)
     let child = a:node.childNode('value')
@@ -30,7 +30,7 @@ function! s:get_childNode(node)
   return child
 endfunction
 
-function! s:from_value(value)
+function! s:from_value(value) abort
   let value = a:value
   if value.name == 'methodResponse'
     let param = value.childNode('params').childNodes('param')
@@ -86,7 +86,7 @@ function! s:from_value(value)
   endif
 endfunction
 
-function! s:to_value(content)
+function! s:to_value(content) abort
   if type(a:content) == 4
     if has_key(a:content, 'bits')
       let struct = webapi#xml#createElement("struct")
@@ -171,7 +171,7 @@ function! s:to_value(content)
   return {}
 endfunction
 
-function! s:to_fault(dom)
+function! s:to_fault(dom) abort
   let struct = a:dom.find('struct')
   let faultCode = ""
   let faultString = ""
@@ -189,7 +189,7 @@ endfunction
 "Add list of args on the xml tree.
 "input: list of args
 "output: none
-function! s:add_node_params(args)
+function! s:add_node_params(args) abort
   let params = webapi#xml#createElement("params")
   for Arg in a:args
     let param = webapi#xml#createElement("param")
@@ -202,7 +202,7 @@ function! s:add_node_params(args)
   return params
 endfunction
 
-function! webapi#xmlrpc#call(uri, func, args)
+function! webapi#xmlrpc#call(uri, func, args) abort
   let methodCall = webapi#xml#createElement("methodCall")
   let methodName = webapi#xml#createElement("methodName")
   call methodName.value(a:func)
@@ -221,7 +221,7 @@ function! webapi#xmlrpc#call(uri, func, args)
   endif
 endfunction
 
-function! webapi#xmlrpc#wrap(contexts)
+function! webapi#xmlrpc#wrap(contexts) abort
   let api = {}
   for context in a:contexts
     let target = api

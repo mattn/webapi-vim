@@ -3,7 +3,7 @@ set cpo&vim
 
 let s:template = { 'name': '', 'attr': {}, 'child': [] }
 
-function! s:nr2byte(nr)
+function! s:nr2byte(nr) abort
   if a:nr < 0x80
     return nr2char(a:nr)
   elseif a:nr < 0x800
@@ -13,7 +13,7 @@ function! s:nr2byte(nr)
   endif
 endfunction
 
-function! s:nr2enc_char(charcode)
+function! s:nr2enc_char(charcode) abort
   if &encoding == 'utf-8'
     return nr2char(a:charcode)
   endif
@@ -24,7 +24,7 @@ function! s:nr2enc_char(charcode)
   return char
 endfunction
 
-function! s:nr2hex(nr)
+function! s:nr2hex(nr) abort
   let n = a:nr
   let r = ""
   while n
@@ -34,7 +34,7 @@ function! s:nr2hex(nr)
   return r
 endfunction
 
-function! s:decodeEntityReference(str, ...)
+function! s:decodeEntityReference(str, ...) abort
   let str = a:str
   let str = substitute(str, '&gt;', '>', 'g')
   let str = substitute(str, '&lt;', '<', 'g')
@@ -50,7 +50,7 @@ function! s:decodeEntityReference(str, ...)
   return str
 endfunction
 
-function! s:encodeEntityReference(str)
+function! s:encodeEntityReference(str) abort
   let str = a:str
   let str = substitute(str, '&', '\&amp;', 'g')
   let str = substitute(str, '>', '\&gt;', 'g')
@@ -63,7 +63,7 @@ function! s:encodeEntityReference(str)
   return str
 endfunction
 
-function! s:matchNode(node, cond)
+function! s:matchNode(node, cond) abort
   if type(a:cond) == 1 && a:node.name == a:cond
     return 1
   endif
@@ -86,7 +86,7 @@ function! s:matchNode(node, cond)
   return 0
 endfunction
 
-function! s:template.childNode(...) dict
+function! s:template.childNode(...) dict abort
   for c in self.child
     if type(c) == 4 && s:matchNode(c, a:000)
       return c
@@ -96,7 +96,7 @@ function! s:template.childNode(...) dict
   return {}
 endfunction
 
-function! s:template.childNodes(...) dict
+function! s:template.childNodes(...) dict abort
   let ret = []
   for c in self.child
     if type(c) == 4 && s:matchNode(c, a:000)
@@ -107,7 +107,7 @@ function! s:template.childNodes(...) dict
   return ret
 endfunction
 
-function! s:template.value(...) dict
+function! s:template.value(...) dict abort
   if a:0
     let self.child = a:000
     return
@@ -124,7 +124,7 @@ function! s:template.value(...) dict
   return ret
 endfunction
 
-function! s:template.find(...) dict
+function! s:template.find(...) dict abort
   for c in self.child
     if type(c) == 4
       if s:matchNode(c, a:000)
@@ -141,7 +141,7 @@ function! s:template.find(...) dict
   return {}
 endfunction
 
-function! s:template.findAll(...) dict
+function! s:template.findAll(...) dict abort
   let ret = []
   for c in self.child
     if type(c) == 4
@@ -155,7 +155,7 @@ function! s:template.findAll(...) dict
   return ret
 endfunction
 
-function! s:template.toString() dict
+function! s:template.toString() dict abort
   let xml = '<' . self.name
   for attr in keys(self.attr)
     let xml .= ' ' . attr . '="' . s:encodeEntityReference(self.attr[attr]) . '"'
@@ -179,13 +179,13 @@ function! s:template.toString() dict
   return xml
 endfunction
 
-function! webapi#xml#createElement(name)
+function! webapi#xml#createElement(name) abort
   let node = deepcopy(s:template)
   let node.name = a:name
   return node
 endfunction
 
-function! s:parse_tree(ctx, top)
+function! s:parse_tree(ctx, top) abort
   let node = a:top
   let stack = [a:top]
   let pos = 0
@@ -284,7 +284,7 @@ function! s:parse_tree(ctx, top)
   endwhile
 endfunction
 
-function! webapi#xml#parse(xml)
+function! webapi#xml#parse(xml) abort
   let top = deepcopy(s:template)
   let oldmaxmempattern=&maxmempattern
   let oldmaxfuncdepth=&maxfuncdepth
@@ -305,11 +305,11 @@ function! webapi#xml#parse(xml)
   throw "Parse Error"
 endfunction
 
-function! webapi#xml#parseFile(fname)
+function! webapi#xml#parseFile(fname) abort
   return webapi#xml#parse(join(readfile(a:fname), "\n"))
 endfunction
 
-function! webapi#xml#parseURL(url)
+function! webapi#xml#parseURL(url) abort
   return webapi#xml#parse(webapi#http#get(a:url).content)
 endfunction
 

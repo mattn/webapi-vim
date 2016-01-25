@@ -33,19 +33,19 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! webapi#sha1#sha1(str)
+function! webapi#sha1#sha1(str) abort
   return s:SHA1Digest(s:str2bytes(a:str))
 endfunction
 
-function! webapi#sha1#sha1bin(bin)
+function! webapi#sha1#sha1bin(bin) abort
   return s:SHA1Digest(a:bin)
 endfunction
 
-function! webapi#sha1#test()
+function! webapi#sha1#test() abort
   call s:main()
 endfunction
 
-function! s:SHA1Digest(bytes)
+function! s:SHA1Digest(bytes) abort
   let sha = deepcopy(s:SHA1Context, 1)
   let Message_Digest = repeat([0], 20)
 
@@ -158,7 +158,7 @@ let s:SHA1Context.Corrupted = 0
 "
 "#define SHA1CircularShift(bits,word) \
 "                (((word) << (bits)) | ((word) >> (32-(bits))))
-function s:SHA1CircularShift(bits, word)
+function s:SHA1CircularShift(bits, word) abort
   return s:bitwise_or(s:bitwise_lshift(a:word, a:bits), s:bitwise_rshift(a:word, 32 - a:bits))
 endfunction
 
@@ -178,7 +178,7 @@ endfunction
 "
 "
 " int SHA1Reset(SHA1Context *context)
-function s:SHA1Reset(context)
+function s:SHA1Reset(context) abort
   if empty(a:context)
     return s:shaNull
   endif
@@ -220,7 +220,7 @@ endfunction
 "
 "int SHA1Result( SHA1Context *context,
 "                uint8_t Message_Digest[SHA1HashSize])
-function s:SHA1Result(context, Message_Digest)
+function s:SHA1Result(context, Message_Digest) abort
   if empty(a:context) || empty(a:Message_Digest)
     return s:shaNull
   endif
@@ -275,7 +275,7 @@ endfunction
 "int SHA1Input(    SHA1Context    *context,
 "                  const uint8_t  *message_array,
 "                  unsigned       length)
-function s:SHA1Input(context, message_array)
+function s:SHA1Input(context, message_array) abort
   if !len(a:message_array)
     return s:shaSuccess
   endif
@@ -338,7 +338,7 @@ endfunction
 "
 "
 " void SHA1ProcessMessageBlock(SHA1Context *context)
-function s:SHA1ProcessMessageBlock(context)
+function s:SHA1ProcessMessageBlock(context) abort
   " Constants defined in SHA-1
   let K = [
         \ 0x5A827999,
@@ -445,7 +445,7 @@ endfunction
 "
 "
 " void SHA1PadMessage(SHA1Context *context)
-function s:SHA1PadMessage(context)
+function s:SHA1PadMessage(context) abort
   "
   "  Check to see if the current message block is too small to hold
   "  the initial padding bits and length.  If so, we will pad the
@@ -530,7 +530,7 @@ let s:resultarray = [
       \ "DE A3 56 A2 CD DD 90 C7 A7 EC ED C5 EB B5 63 93 4F 46 04 52"
       \ ]
 
-function s:main()
+function s:main() abort
   let sha = deepcopy(s:SHA1Context, 1)
   let Message_Digest = repeat([0], 20)
 
@@ -592,17 +592,17 @@ endfunction
 
 "---------------------------------------------------------------------
 " misc
-function! s:str2bytes(str)
+function! s:str2bytes(str) abort
   return map(range(len(a:str)), 'char2nr(a:str[v:val])')
 endfunction
 
-function! s:cmp(a, b)
+function! s:cmp(a, b) abort
   let a = printf("%08x", a:a)
   let b = printf("%08x", a:b)
   return a < b ? -1 : a > b ? 1 : 0
 endfunction
 
-function! s:uint8(n)
+function! s:uint8(n) abort
   return s:bitwise_and(a:n, 0xFF)
 endfunction
 
@@ -674,11 +674,11 @@ let s:xor = [
       \ [0xF, 0xE, 0xD, 0xC, 0xB, 0xA, 0x9, 0x8, 0x7, 0x6, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0]
       \ ]
 
-function! s:bitwise_lshift(a, n)
+function! s:bitwise_lshift(a, n) abort
   return a:a * s:k[a:n]
 endfunction
 
-function! s:bitwise_rshift(a, n)
+function! s:bitwise_rshift(a, n) abort
   let a = a:a < 0 ? a:a - 0x80000000 : a:a
   let a = a / s:k[a:n]
   if a:a < 0
@@ -687,11 +687,11 @@ function! s:bitwise_rshift(a, n)
   return a
 endfunction
 
-function! s:bitwise_not(a)
+function! s:bitwise_not(a) abort
   return -a:a - 1
 endfunction
 
-function! s:bitwise_and(a, b)
+function! s:bitwise_and(a, b) abort
   let a = a:a < 0 ? a:a - 0x80000000 : a:a
   let b = a:b < 0 ? a:b - 0x80000000 : a:b
   let r = 0
@@ -708,7 +708,7 @@ function! s:bitwise_and(a, b)
   return r
 endfunction
 
-function! s:bitwise_or(a, b)
+function! s:bitwise_or(a, b) abort
   let a = a:a < 0 ? a:a - 0x80000000 : a:a
   let b = a:b < 0 ? a:b - 0x80000000 : a:b
   let r = 0
@@ -725,7 +725,7 @@ function! s:bitwise_or(a, b)
   return r
 endfunction
 
-function! s:bitwise_xor(a, b)
+function! s:bitwise_xor(a, b) abort
   let a = a:a < 0 ? a:a - 0x80000000 : a:a
   let b = a:b < 0 ? a:b - 0x80000000 : a:b
   let r = 0

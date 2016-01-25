@@ -1,7 +1,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! s:attr(node, name)
+function! s:attr(node, name) abort
   let n = a:node.childNode(a:name)
   if empty(n)
     return ""
@@ -9,7 +9,7 @@ function! s:attr(node, name)
   return n.value()
 endfunction
 
-function! webapi#feed#parseURL(url)
+function! webapi#feed#parseURL(url) abort
   let dom = webapi#xml#parseURL(a:url)
   let items = []
   if dom.name == 'rss'

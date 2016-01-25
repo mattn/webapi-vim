@@ -7,7 +7,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! s:nr2byte(nr)
+function! s:nr2byte(nr) abort
   if a:nr < 0x80
     return nr2char(a:nr)
   elseif a:nr < 0x800
@@ -17,7 +17,7 @@ function! s:nr2byte(nr)
   endif
 endfunction
 
-function! s:nr2enc_char(charcode)
+function! s:nr2enc_char(charcode) abort
   if &encoding == 'utf-8'
     return nr2char(a:charcode)
   endif
@@ -28,7 +28,7 @@ function! s:nr2enc_char(charcode)
   return char
 endfunction
 
-function! webapi#html#decodeEntityReference(str)
+function! webapi#html#decodeEntityReference(str) abort
   let str = a:str
   let str = substitute(str, '&gt;', '>', 'g')
   let str = substitute(str, '&lt;', '<', 'g')
@@ -43,7 +43,7 @@ function! webapi#html#decodeEntityReference(str)
   return str
 endfunction
 
-function! webapi#html#encodeEntityReference(str)
+function! webapi#html#encodeEntityReference(str) abort
   let str = a:str
   let str = substitute(str, '&', '\&amp;', 'g')
   let str = substitute(str, '>', '\&gt;', 'g')
@@ -55,16 +55,16 @@ function! webapi#html#encodeEntityReference(str)
   return str
 endfunction
 
-function! webapi#html#parse(html)
+function! webapi#html#parse(html) abort
   let html = substitute(a:html, '<\(area\|base\|basefont\|br\|nobr\|col\|frame\|hr\|img\|input\|isindex\|link\|meta\|param\|embed\|keygen\|command\)\([^>]*[^/]\|\)>', '<\1\2/>', 'g')
   return webapi#xml#parse(html)
 endfunction
 
-function! webapi#html#parseFile(fname)
+function! webapi#html#parseFile(fname) abort
   return webapi#html#parse(join(readfile(a:fname), "\n"))
 endfunction
 
-function! webapi#html#parseURL(url)
+function! webapi#html#parseURL(url) abort
   return webapi#html#parse(webapi#http#get(a:url).content)
 endfunction
 

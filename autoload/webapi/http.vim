@@ -159,7 +159,7 @@ function! webapi#http#get(url, ...) abort
     throw "require `curl` or `wget` command"
   endif
   if follow != 0
-    while res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established' || res =~ '^HTTP/1\.\d 100 Continue'
+    while res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.[01] [0-9]\{3} \w\+\n\nHTTP/1\.[01] [0-9]\{3} \w\+')
       let pos = stridx(res, "\r\n\r\n")
       if pos != -1
         let res = strpart(res, pos+4)
@@ -240,7 +240,7 @@ function! webapi#http#post(url, ...) abort
   endif
   call delete(file)
   if follow != 0
-    while res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established' || ($HTTP_PROXY != "" && res =~ '^HTTP/1\.[01] [0-9]\{3} \w\+\n\nHTTP/1\.[01] [0-9]\{3} \w\+')
+    while res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.[01] [0-9]\{3} \w\+\n\nHTTP/1\.[01] [0-9]\{3} \w\+')
       let pos = stridx(res, "\r\n\r\n")
       if pos != -1
         let res = strpart(res, pos+4)

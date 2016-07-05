@@ -159,7 +159,7 @@ function! webapi#http#get(url, ...) abort
     throw "require `curl` or `wget` command"
   endif
   if follow != 0
-    while res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.[01] [0-9]\{3} .\+\n\r\?\nHTTP/1\.[01] [0-9]\{3} .\+'
+    while res =~# '^HTTP/\%(1\.[01]\|2\%(\.0\)\?\) 3' || res =~# '^HTTP/1\.[01] [0-9]\{3} .\+\n\r\?\nHTTP/1\.[01] [0-9]\{3} .\+'
       let pos = stridx(res, "\r\n\r\n")
       if pos != -1
         let res = strpart(res, pos+4)
@@ -177,7 +177,7 @@ function! webapi#http#get(url, ...) abort
     let content = strpart(res, pos+2)
   endif
   let header = split(res[:pos-1], '\r\?\n')
-  let matched = matchlist(get(header, 0), '^HTTP/1\.\d\s\+\(\d\+\)\s\+\(.*\)')
+  let matched = matchlist(get(header, 0), '^HTTP/\%(1\.[01]\|2\%(\.0\)\?\)\s\+\(\d\+\)\s*\(.*\)')
   if !empty(matched)
     let [status, message] = matched[1 : 2]
     call remove(header, 0)
@@ -240,7 +240,7 @@ function! webapi#http#post(url, ...) abort
   endif
   call delete(file)
   if follow != 0
-    while res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.[01] [0-9]\{3} .\+\n\r\?\nHTTP/1\.[01] [0-9]\{3} .\+'
+    while res =~# '^HTTP/\%(1\.[01]\|2\%(\.0\)\?\) 3' || res =~# '^HTTP/1\.[01] [0-9]\{3} .\+\n\r\?\nHTTP/1\.[01] [0-9]\{3} .\+'
       let pos = stridx(res, "\r\n\r\n")
       if pos != -1
         let res = strpart(res, pos+4)
@@ -258,7 +258,7 @@ function! webapi#http#post(url, ...) abort
     let content = strpart(res, pos+2)
   endif
   let header = split(res[:pos-1], '\r\?\n')
-  let matched = matchlist(get(header, 0), '^HTTP/1\.\d\s\+\(\d\+\)\s\+\(.*\)')
+  let matched = matchlist(get(header, 0), '^HTTP/\%(1\.[01]\|2\%(\.0\)\?\)\s\+\(\d\+\)\s*\(.*\)')
   if !empty(matched)
     let [status, message] = matched[1 : 2]
     call remove(header, 0)

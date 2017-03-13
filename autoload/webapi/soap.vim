@@ -37,7 +37,7 @@ function! s:parse_return(node) abort
   if a:node.attr["xsi:type"] =~ ":Array$"
     let arr = []
     for item in a:node.child
-      call add(ret, s:parse_return(item.child)
+      call add(ret, s:parse_return(item.child))
     endfor
     let ret = arr
   elseif a:node.attr["xsi:type"] =~ ":Map$"
@@ -54,7 +54,7 @@ function! s:parse_return(node) abort
     if len(a:node.child)
       let arr = []
       for item in a:node.child
-        call add(arr, s:parse_return(item)
+        call add(arr, s:parse_return(item))
       endfor
       let ret = arr
     else

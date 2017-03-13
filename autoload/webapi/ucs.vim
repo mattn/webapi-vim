@@ -37,7 +37,7 @@ function! webapi#ucs#byte2nr(byte) abort
         let n4 = char2nr(p[4])
         if webapi#bit#and(n4, 0xc0) == 0x80
           if (l == 5)
-            return webapi#bit#shift(webapi#bit#and(n0, 0x03), 24) + webapi#bit#shift(webapi#bit#and(n1, 0x3f), 18) + webapi#bit#shift(webapi#bit#and(n2, 0x3f), 12) + webapi#bit#shift(webapi#bit#and(n3 & 0x3f), 6) + webapi#bit#and(n4, 0x3f)
+            return webapi#bit#shift(webapi#bit#and(n0, 0x03), 24) + webapi#bit#shift(webapi#bit#and(n1, 0x3f), 18) + webapi#bit#shift(webapi#bit#and(n2, 0x3f), 12) + webapi#bit#shift(webapi#bit#and(n3, 0x3f), 6) + webapi#bit#and(n4, 0x3f)
           endif
           let n5 = char2nr(p[5])
           if webapi#bit#and(n5, 0xc0) == 0x80 && l == 6

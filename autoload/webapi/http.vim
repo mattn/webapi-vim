@@ -241,7 +241,8 @@ function! webapi#http#post(url, ...) abort
   endif
   call delete(file)
   if follow != 0
-    while res =~# '^HTTP/\%(1\.[01]\|2\%(\.0\)\?\) 3' || res =~# '^HTTP/1\.[01] [0-9]\{3} .\+\n\r\?\nHTTP/1\.[01] [0-9]\{3} .\+'
+    let mx = 'HTTP/\%(1\.[01]\|2\%(\.0\)\?\)'
+    while res =~# '^' . mx . ' 3' || res =~# '^' . mx . ' [0-9]\{3} .\+\n\r\?\n' . mx . ' .\+'
       let pos = stridx(res, "\r\n\r\n")
       if pos != -1
         let res = strpart(res, pos+4)

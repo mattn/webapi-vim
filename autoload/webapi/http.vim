@@ -279,6 +279,101 @@ function! webapi#http#post(url, ...) abort
   \}
 endfunction
 
+function! webapi#http#send(req) abort
+  let postdata = get(a:req, 'data', '')
+  let method = get(a:req, 'method', postdata == '' ? 'GET': 'POST')
+  let headdata = get(a:req, 'header', {})
+  let follow = get(a:req, 'follow', 1)
+  let url = get(a:req, 'url', '')
+  if type(postdata) == 4
+    let postdatastr = webapi#http#encodeURI(postdata)
+  else
+    let postdatastr = postdata
+  endif
+  if empty(postdatastr)
+    let file = ''
+  else
+    let file = tempname()
+  endif
+  if executable('curl')
+    let command = printf('curl -q %s -s -k -i -X %s', (follow ? '-L' : ''), len(method) ? method : 'POST')
+    let quote = &shellxquote == '"' ?  "'" : '"'
+    for key in keys(headdata)
+      if has('win32')
+        let command .= ' -H ' . quote . key . ': ' . substitute(headdata[key], '"', '"""', 'g') . quote
+      else
+        let command .= ' -H ' . quote . key . ': ' . headdata[key] . quote
+      endif
+    endfor
+    let command .= ' '.quote.url.quote
+    if file == ''
+      let res = s:system(command)
+    else
+      call writefile(split(postdatastr, "\n"), file, 'b')
+      let res = s:system(command . ' --data-binary @' . quote.file.quote)
+      call delete(file)
+    endif
+  elseif executable('wget')
+    let command = printf('wget -O- --save-headers --server-response -q %s', follow ? '-L' : '')
+    let headdata['X-HTTP-Method-Override'] = method
+    let quote = &shellxquote == '"' ?  "'" : '"'
+    for key in keys(headdata)
+      if has('win32')
+        let command .= ' --header=' . quote . key . ': ' . substitute(headdata[key], '"', '"""', 'g') . quote
+      else
+        let command .= ' --header=' . quote . key . ': ' . headdata[key] . quote
+      endif
+    endfor
+    let command .= ' '.quote.url.quote
+    if file == ''
+      let res = s:system(command)
+    else
+      call writefile(split(postdatastr, "\n"), file, 'b')
+      let res = s:system(command . ' --post-data @' . quote.file.quote)
+      call delete(file)
+    endif
+  else
+    throw "require `curl` or `wget` command"
+  endif
+  if follow != 0
+    let mx = 'HTTP/\%(1\.[01]\|2\%(\.0\)\?\)'
+    while res =~# '^' . mx . ' 3' || res =~# '^' . mx . ' [0-9]\{3} .\+\n\r\?\n' . mx . ' .\+'
+      let pos = stridx(res, "\r\n\r\n")
+      if pos != -1
+        let res = strpart(res, pos+4)
+      else
+        let pos = stridx(res, "\n\n")
+        let res = strpart(res, pos+2)
+      endif
+    endwhile
+  endif
+  let pos = stridx(res, "\r\n\r\n")
+  if pos != -1
+    let content = strpart(res, pos+4)
+  else
+    let pos = stridx(res, "\n\n")
+    let content = strpart(res, pos+2)
+  endif
+  let header = split(res[:pos-1], '\r\?\n')
+  let matched = matchlist(get(header, 0), '^HTTP/\%(1\.[01]\|2\%(\.0\)\?\)\s\+\(\d\+\)\s*\(.*\)')
+  if !empty(matched)
+    let [status, message] = matched[1 : 2]
+    call remove(header, 0)
+  else
+    if v:shell_error || len(matched)
+      let [status, message] = ['500', "Couldn't connect to host"]
+    else
+      let [status, message] = ['200', 'OK']
+    endif
+  endif
+  return {
+  \ 'status' : status,
+  \ 'message' : message,
+  \ 'header' : header,
+  \ 'content' : content
+  \}
+endfunction
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
 

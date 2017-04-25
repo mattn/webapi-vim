@@ -38,7 +38,7 @@ endfunction
 
 function! s:nr2hex(nr) abort
   let n = a:nr
-  let r = ""
+  let r = ''
   while n
     let r = '0123456789ABCDEF'[n % 16] . r
     let n = n / 16
@@ -49,14 +49,14 @@ endfunction
 function! s:urlencode_char(c, ...) abort
   let is_binary = get(a:000, 1)
   if !is_binary
-    let c = iconv(a:c, &encoding, "utf-8")
-    if c == ""
+    let c = iconv(a:c, &encoding, 'utf-8')
+    if c == ''
       let c = a:c
     endif
   endif
-  let s = ""
+  let s = ''
   for i in range(strlen(c))
-    let s .= printf("%%%02X", char2nr(c[i]))
+    let s .= printf('%%%02X', char2nr(c[i]))
   endfor
   return s
 endfunction
@@ -77,12 +77,12 @@ function! webapi#http#encodeURI(items, ...) abort
   let ret = ''
   if type(a:items) == 4
     for key in sort(keys(a:items))
-      if strlen(ret) | let ret .= "&" | endif
-      let ret .= key . "=" . webapi#http#encodeURI(a:items[key])
+      if strlen(ret) | let ret .= '&' | endif
+      let ret .= key . '=' . webapi#http#encodeURI(a:items[key])
     endfor
   elseif type(a:items) == 3
     for item in sort(a:items)
-      if strlen(ret) | let ret .= "&" | endif
+      if strlen(ret) | let ret .= '&' | endif
       let ret .= item
     endfor
   else
@@ -95,16 +95,16 @@ function! webapi#http#encodeURIComponent(items) abort
   let ret = ''
   if type(a:items) == 4
     for key in sort(keys(a:items))
-      if strlen(ret) | let ret .= "&" | endif
-      let ret .= key . "=" . webapi#http#encodeURIComponent(a:items[key])
+      if strlen(ret) | let ret .= '&' | endif
+      let ret .= key . '=' . webapi#http#encodeURIComponent(a:items[key])
     endfor
   elseif type(a:items) == 3
     for item in sort(a:items)
-      if strlen(ret) | let ret .= "&" | endif
+      if strlen(ret) | let ret .= '&' | endif
       let ret .= item
     endfor
   else
-    let items = iconv(a:items, &enc, "utf-8")
+    let items = iconv(a:items, &enc, 'utf-8')
     let len = strlen(items)
     let i = 0
     while i < len
@@ -129,34 +129,34 @@ function! webapi#http#get(url, ...) abort
   let url = a:url
   let getdatastr = webapi#http#encodeURI(getdata)
   if strlen(getdatastr)
-    let url .= "?" . getdatastr
+    let url .= '?' . getdatastr
   endif
   if executable('curl')
     let command = printf('curl -q %s -s -k -i', follow ? '-L' : '')
     let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(headdata)
       if has('win32')
-        let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
+        let command .= ' -H ' . quote . key . ': ' . substitute(headdata[key], '"', '"""', 'g') . quote
       else
-        let command .= " -H " . quote . key . ": " . headdata[key] . quote
+        let command .= ' -H ' . quote . key . ': ' . headdata[key] . quote
       endif
     endfor
-    let command .= " ".quote.url.quote
+    let command .= ' '.quote.url.quote
     let res = s:system(command)
   elseif executable('wget')
     let command = printf('wget -O- --save-headers --server-response -q %s', follow ? '-L' : '')
     let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(headdata)
       if has('win32')
-        let command .= " --header=" . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
+        let command .= ' --header=' . quote . key . ': ' . substitute(headdata[key], '"', '"""', 'g') . quote
       else
-        let command .= " --header=" . quote . key . ": " . headdata[key] . quote
+        let command .= ' --header=' . quote . key . ': ' . headdata[key] . quote
       endif
     endfor
-    let command .= " ".quote.url.quote
+    let command .= ' '.quote.url.quote
     let res = s:system(command)
   else
-    throw "require `curl` or `wget` command"
+    throw 'require `curl` or `wget` command'
   endif
   if follow != 0
     let mx = 'HTTP/\%(1\.[01]\|2\%(\.0\)\?\)'
@@ -190,17 +190,17 @@ function! webapi#http#get(url, ...) abort
     endif
   endif
   return {
-  \ "status" : status,
-  \ "message" : message,
-  \ "header" : header,
-  \ "content" : content
+  \ 'status' : status,
+  \ 'message' : message,
+  \ 'header' : header,
+  \ 'content' : content
   \}
 endfunction
 
 function! webapi#http#post(url, ...) abort
   let postdata = a:0 > 0 ? a:000[0] : {}
   let headdata = a:0 > 1 ? a:000[1] : {}
-  let method = a:0 > 2 ? a:000[2] : "POST"
+  let method = a:0 > 2 ? a:000[2] : 'POST'
   let follow = a:0 > 3 ? a:000[3] : 1
   let url = a:url
   if type(postdata) == 4
@@ -214,28 +214,28 @@ function! webapi#http#post(url, ...) abort
     let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(headdata)
       if has('win32')
-        let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
+        let command .= ' -H ' . quote . key . ': ' . substitute(headdata[key], '"', '"""', 'g') . quote
       else
-        let command .= " -H " . quote . key . ": " . headdata[key] . quote
+        let command .= ' -H ' . quote . key . ': ' . headdata[key] . quote
       endif
     endfor
-    let command .= " ".quote.url.quote
-    call writefile(split(postdatastr, "\n"), file, "b")
-    let res = s:system(command . " --data-binary @" . quote.file.quote)
+    let command .= ' '.quote.url.quote
+    call writefile(split(postdatastr, "\n"), file, 'b')
+    let res = s:system(command . ' --data-binary @' . quote.file.quote)
   elseif executable('wget')
     let command = printf('wget -O- --save-headers --server-response -q %s', follow ? '-L' : '')
     let headdata['X-HTTP-Method-Override'] = method
     let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(headdata)
       if has('win32')
-        let command .= " --header=" . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
+        let command .= ' --header=' . quote . key . ': ' . substitute(headdata[key], '"', '"""', 'g') . quote
       else
-        let command .= " --header=" . quote . key . ": " . headdata[key] . quote
+        let command .= ' --header=' . quote . key . ': ' . headdata[key] . quote
       endif
     endfor
-    let command .= " ".quote.url.quote
-    call writefile(split(postdatastr, "\n"), file, "b")
-    let res = s:system(command . " --post-data @" . quote.file.quote)
+    let command .= ' '.quote.url.quote
+    call writefile(split(postdatastr, "\n"), file, 'b')
+    let res = s:system(command . ' --post-data @' . quote.file.quote)
   else
     throw "require `curl` or `wget` command"
   endif
@@ -272,10 +272,10 @@ function! webapi#http#post(url, ...) abort
     endif
   endif
   return {
-  \ "status" : status,
-  \ "message" : message,
-  \ "header" : header,
-  \ "content" : content
+  \ 'status' : status,
+  \ 'message' : message,
+  \ 'header' : header,
+  \ 'content' : content
   \}
 endfunction
 

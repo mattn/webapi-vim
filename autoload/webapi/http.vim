@@ -380,7 +380,7 @@ function! webapi#http#stream(req) abort
   let headdata = get(a:req, 'header', {})
   let follow = get(a:req, 'follow', 1)
   let url = get(a:req, 'url', '')
-  let callback = get(a:req, 'out_cb', v:none) == v:none
+  let mode = get(a:req, 'mode', 'nl')
   if type(postdata) == 4
     let postdatastr = webapi#http#encodeURI(postdata)
   else
@@ -442,7 +442,7 @@ function! webapi#http#stream(req) abort
   call ch_setoptions(channel,
   \{
   \  'out_cb': function('webapi#http#out_cb', [a:req]),
-  \  'mode': 'raw',
+  \  'mode': mode,
   \})
   let a:req['channel'] = channel
   let a:req['file'] = file

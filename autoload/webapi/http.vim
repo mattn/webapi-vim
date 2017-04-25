@@ -374,6 +374,98 @@ function! webapi#http#send(req) abort
   \}
 endfunction
 
+function! webapi#http#stream(req) abort
+  let postdata = get(a:req, 'data', '')
+  let method = get(a:req, 'method', postdata == '' ? 'GET': 'POST')
+  let headdata = get(a:req, 'header', {})
+  let follow = get(a:req, 'follow', 1)
+  let url = get(a:req, 'url', '')
+  let callback = get(a:req, 'out_cb', v:none) == v:none
+  if type(postdata) == 4
+    let postdatastr = webapi#http#encodeURI(postdata)
+  else
+    let postdatastr = postdata
+  endif
+  if empty(postdatastr)
+    let file = ''
+  else
+    let file = tempname()
+  endif
+  if executable('curl')
+    let command = printf('curl -q %s -s -k -X %s', (follow ? '-L' : ''), len(method) ? method : 'POST')
+    let quote = &shellxquote == '"' ?  "'" : '"'
+    for key in keys(headdata)
+      if has('win32')
+        let command .= ' -H ' . quote . key . ': ' . substitute(headdata[key], '"', '"""', 'g') . quote
+      else
+        let command .= ' -H ' . quote . key . ': ' . headdata[key] . quote
+      endif
+    endfor
+    let command .= ' '.quote.url.quote
+    if file == ''
+      let job = job_start(command)
+    else
+      call writefile(split(postdatastr, "\n"), file, 'b')
+      let job = job_start(command . ' --data-binary @' . quote.file.quote)
+      call delete(file)
+    endif
+  elseif executable('wget')
+    let command = printf('wget -O- -q %s', follow ? '-L' : '')
+    let headdata['X-HTTP-Method-Override'] = method
+    let quote = &shellxquote == '"' ?  "'" : '"'
+    for key in keys(headdata)
+      if has('win32')
+        let command .= ' --header=' . quote . key . ': ' . substitute(headdata[key], '"', '"""', 'g') . quote
+      else
+        let command .= ' --header=' . quote . key . ': ' . headdata[key] . quote
+      endif
+    endfor
+    let command .= ' '.quote.url.quote
+    if file == ''
+      let job = job_start(command)
+    else
+      call writefile(split(postdatastr, "\n"), file, 'b')
+      let job = job_start(command . ' --post-data @' . quote.file.quote)
+      call delete(file)
+    endif
+  else
+    throw "require `curl` or `wget` command"
+  endif
+  call job_setoptions(job,
+  \{
+  \  'exit_cb': function('webapi#http#exit_cb', [a:req]),
+  \  'stoponexit': 'kill',
+  \})
+  let a:req['job'] = job
+
+  let channel = job_getchannel(job)
+  call ch_setoptions(channel,
+  \{
+  \  'out_cb': function('webapi#http#out_cb', [a:req]),
+  \  'mode': 'raw',
+  \})
+  let a:req['channel'] = channel
+  let a:req['file'] = file
+endfunction
+
+function! webapi#http#exit_cb(req, job, code) abort
+  let file = get(a:req, 'file')
+  if file != ''
+    call delete(file)
+  endif
+  let exit_cb = get(a:req, 'exit_cb', v:none)
+  if exit_cb != v:none
+    call exit_cb(a:code)
+  endif
+endfunction
+
+function! webapi#http#out_cb(req, ch, data) abort
+  let out_cb = get(a:req, 'out_cb', v:none)
+  if out_cb != v:none
+    call out_cb(a:data)
+  endif
+endfunction
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
 

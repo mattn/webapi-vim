@@ -453,16 +453,16 @@ function! webapi#http#exit_cb(req, job, code) abort
   if file != ''
     call delete(file)
   endif
-  let exit_cb = get(a:req, 'exit_cb', v:none)
-  if exit_cb != v:none
-    call exit_cb(a:code)
+  let Fexit_cb = get(a:req, 'exit_cb', v:none)
+  if Fexit_cb != v:none
+    call Fexit_cb(a:code)
   endif
 endfunction
 
 function! webapi#http#out_cb(req, ch, data) abort
-  let out_cb = get(a:req, 'out_cb', v:none)
-  if out_cb != v:none
-    call out_cb(a:data)
+  let Fout_cb = get(a:req, 'out_cb', v:none)
+  if Fout_cb != v:none
+    call Fout_cb(a:data)
   endif
 endfunction
 

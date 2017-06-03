@@ -122,43 +122,19 @@ function! webapi#http#encodeURIComponent(items) abort
   return ret
 endfunction
 
-function! webapi#http#get(url, ...) abort
-  let getdata = a:0 > 0 ? a:000[0] : {}
-  let headdata = a:0 > 1 ? a:000[1] : {}
-  let follow = a:0 > 2 ? a:000[2] : 1
-  let url = a:url
-  let getdatastr = webapi#http#encodeURI(getdata)
-  if strlen(getdatastr)
-    let url .= '?' . getdatastr
-  endif
-  if executable('curl')
-    let command = printf('curl -q %s -s -k -i', follow ? '-L' : '')
-    let quote = &shellxquote == '"' ?  "'" : '"'
-    for key in keys(headdata)
-      if has('win32')
-        let command .= ' -H ' . quote . key . ': ' . substitute(headdata[key], '"', '"""', 'g') . quote
-      else
-        let command .= ' -H ' . quote . key . ': ' . headdata[key] . quote
-      endif
-    endfor
-    let command .= ' '.quote.url.quote
-    let res = s:system(command)
-  elseif executable('wget')
-    let command = printf('wget -O- --save-headers --server-response -q %s', follow ? '-L' : '')
-    let quote = &shellxquote == '"' ?  "'" : '"'
-    for key in keys(headdata)
-      if has('win32')
-        let command .= ' --header=' . quote . key . ': ' . substitute(headdata[key], '"', '"""', 'g') . quote
-      else
-        let command .= ' --header=' . quote . key . ': ' . headdata[key] . quote
-      endif
-    endfor
-    let command .= ' '.quote.url.quote
-    let res = s:system(command)
-  else
-    throw 'require `curl` or `wget` command'
-  endif
-  if follow != 0
+function! s:on_http_get_async(ctx, jobid, data, event_type) abort
+    if a:event_type == 'stdout'
+        let buffer = join(a:data, "\n")
+        let a:ctx['buffer'] = a:ctx['buffer'] . join(a:data, "\n")
+    elseif a:event_type == 'exit'
+        let respone = s:http_get_parse_response(a:ctx['buffer'], a:ctx['follow'], a:data)
+        call a:ctx['callback'](respone)
+    endif
+endfunction
+
+function! s:http_get_parse_response(res, follow, shell_error) abort
+  let res = a:res
+  if a:follow != 0
     let mx = 'HTTP/\%(1\.[01]\|2\%(\.0\)\?\)'
     while res =~# '^' . mx . ' 3' || res =~# '^' . mx . ' [0-9]\{3} .\+\n\r\?\n' . mx . ' .\+'
       let pos = stridx(res, "\r\n\r\n")
@@ -183,7 +159,7 @@ function! webapi#http#get(url, ...) abort
     let [status, message] = matched[1 : 2]
     call remove(header, 0)
   else
-    if v:shell_error || len(matched)
+    if a:shell_error || len(matched)
       let [status, message] = ['500', "Couldn't connect to host"]
     else
       let [status, message] = ['200', 'OK']
@@ -195,6 +171,58 @@ function! webapi#http#get(url, ...) abort
   \ 'header' : header,
   \ 'content' : content
   \}
+endfunction
+
+function! webapi#http#get(url, ...) abort
+  let getdata = a:0 > 0 ? a:000[0] : {}
+  let headdata = a:0 > 1 ? a:000[1] : {}
+  let follow = a:0 > 2 ? a:000[2] : 1
+  let Callback = a:0 > 3 ? a:000[3] : {}
+  let url = a:url
+  let getdatastr = webapi#http#encodeURI(getdata)
+  if strlen(getdatastr)
+    let url .= '?' . getdatastr
+  endif
+  if executable('curl')
+    let command = printf('curl -q %s -s -k -i', follow ? '-L' : '')
+    let quote = &shellxquote == '"' ?  "'" : '"'
+    for key in keys(headdata)
+      if has('win32')
+        let command .= ' -H ' . quote . key . ': ' . substitute(headdata[key], '"', '"""', 'g') . quote
+      else
+        let command .= ' -H ' . quote . key . ': ' . headdata[key] . quote
+      endif
+    endfor
+    let command .= ' '.quote.url.quote
+    if type(Callback) == type({})
+        let res = s:system(command)
+    else
+        let ctx = { 'buffer': '', 'callback': Callback, 'follow': follow }
+        call webapi#job#start([command], { 'on_stdout': function('s:on_http_get_async', [ctx]), 'on_exit': function('s:on_http_get_async', [ctx]) })
+        return
+    endif
+  elseif executable('wget')
+    let command = printf('wget -O- --save-headers --server-response -q %s', follow ? '-L' : '')
+    let quote = &shellxquote == '"' ?  "'" : '"'
+    for key in keys(headdata)
+      if has('win32')
+        let command .= ' --header=' . quote . key . ': ' . substitute(headdata[key], '"', '"""', 'g') . quote
+      else
+        let command .= ' --header=' . quote . key . ': ' . headdata[key] . quote
+      endif
+    endfor
+    let command .= ' '.quote.url.quote
+    if type(Callback) == type({})
+        let res = s:system(command)
+    else
+        let ctx = { 'buffer': '', 'callback': Callback, 'follow': follow }
+        call webapi#job#start([command], { 'on_stdout': function('s:on_http_get_async', ctx), 'on_exit': function('s:on_http_get_async', ctx) })
+        return
+    endif
+  else
+    throw 'require `curl` or `wget` command'
+  endif
+  return s:http_get_parse_response(res, follow, v:shell_error)
 endfunction
 
 function! webapi#http#post(url, ...) abort

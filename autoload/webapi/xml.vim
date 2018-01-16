@@ -35,6 +35,9 @@ function! s:nr2hex(nr) abort
 endfunction
 
 function! s:decodeEntityReference(str, ...) abort
+  if a:str ==# ''
+    return a:str
+  endif
   let str = a:str
   let str = substitute(str, '&gt;', '>', 'g')
   let str = substitute(str, '&lt;', '<', 'g')
@@ -51,6 +54,9 @@ function! s:decodeEntityReference(str, ...) abort
 endfunction
 
 function! s:encodeEntityReference(str) abort
+  if a:str ==# ''
+    return a:str
+  endif
   let str = a:str
   let str = substitute(str, '&', '\&amp;', 'g')
   let str = substitute(str, '>', '\&gt;', 'g')
@@ -230,9 +236,7 @@ function! s:parse_tree(ctx, top) abort
     let tag_name = m[3]
     let attrs = m[4]
 
-    if len(m[1])
-      let content .= s:decodeEntityReference(m[1])
-    endif
+    let content .= s:decodeEntityReference(m[1])
 
     if is_end_tag
       " closing tag: pop from stack and continue at upper level

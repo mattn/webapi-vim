@@ -269,9 +269,6 @@ function! s:parse_tree(ctx, top) abort
       endif
       let name = attr_match[1]
       let value = len(attr_match[2]) ? attr_match[2] : len(attr_match[3]) ? attr_match[3] : len(attr_match[4]) ? attr_match[4] : ""
-      if value == ""
-        let value = name
-      endif
       let node.attr[name] = s:decodeEntityReference(value)
       let attrs = attrs[stridx(attrs, attr_match[0]) + len(attr_match[0]):]
     endwhile

@@ -8,11 +8,13 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! webapi#jsonrpc#call(uri, func, args) abort
+function! webapi#jsonrpc#call(uri, func, args, ...) abort
+  let opts = a:0 > 0 ? a:000[0] : {}
   let data = webapi#json#encode({
   \ 'jsonrpc': '2.0',
   \ 'method':  a:func,
   \ 'params':  a:args,
+  \ 'id': has_key(opts, 'id') ? opts['id'] : 0,
   \})
   let res = webapi#http#post(a:uri, data, {"Content-Type": "application/json"})
   let obj = webapi#json#decode(res.content)

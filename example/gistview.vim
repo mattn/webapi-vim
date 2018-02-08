@@ -1,6 +1,6 @@
 function! s:dump(node, syntax)
   let syntax = a:syntax
-  if type(a:node) == 1
+  if type(a:node) == 1 && empty(a:node)
     if len(syntax) | exe "echohl ".syntax | endif
     echon webapi#html#decodeEntityReference(a:node)
     echohl None
@@ -9,7 +9,7 @@ function! s:dump(node, syntax)
       call s:dump(n, syntax)
     endfor
     return
-  elseif type(a:node) == 4
+  elseif type(a:node) == 4 && !empty(a:node)
       "echo a:node.name
       "echo a:node.attr
     let syndef = {'kt' : 'Type', 'mi' : 'Number', 'nb' : 'Statement', 'kp' : 'Statement', 'nn' : 'Define', 'nc' : 'Constant', 'no' : 'Constant', 'k'  : 'Include', 's'  : 'String', 's1' : 'String', 'err': 'Error', 'kd' : 'StorageClass', 'c1' : 'Comment', 'ss' : 'Delimiter', 'vi' : 'Identifier'}
@@ -25,7 +25,7 @@ function! s:dump(node, syntax)
 endfunction
 
 let no = 357275
-let res = webapi#http#get(printf('http://gist.github.com/%d.json', no))
+let res = webapi#http#get(printf('https://gist.github.com/%d.json', no))
 let obj = webapi#json#decode(res.content)
 let dom = webapi#html#parse(obj.div)
 echo "-------------------------------------------------"
@@ -36,7 +36,7 @@ for file in dom.childNodes('div')
     echo "URL:".meta[1].find('a').attr['href']
   endif
   echo "\n"
-  call s:dump(file.find('pre'), '')
+  call s:dump(file, '')
   echo "-------------------------------------------------"
 endfor
 

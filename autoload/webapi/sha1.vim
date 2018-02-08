@@ -159,7 +159,7 @@ let s:SHA1Context.Corrupted = 0
 "#define SHA1CircularShift(bits,word) \
 "                (((word) << (bits)) | ((word) >> (32-(bits))))
 function s:SHA1CircularShift(bits, word) abort
-  return s:bitwise_or(s:bitwise_lshift(a:word, a:bits), s:bitwise_rshift(a:word, 32 - a:bits))
+  return or(s:bitwise_lshift(a:word, a:bits), s:bitwise_rshift(a:word, 32 - a:bits))
 endfunction
 
 "
@@ -244,7 +244,7 @@ function s:SHA1Result(context, Message_Digest) abort
     let a:Message_Digest[i] = s:uint8(
           \   s:bitwise_rshift(
           \     a:context.Intermediate_Hash[s:bitwise_rshift(i, 2)],
-          \     8 * (3 - s:bitwise_and(i, 0x03))
+          \     8 * (3 - and(i, 0x03))
           \   )
           \ )
   endfor
@@ -297,7 +297,7 @@ function s:SHA1Input(context, message_array) abort
     if a:context.Corrupted
       break
     endif
-    let a:context.Message_Block[a:context.Message_Block_Index] = s:bitwise_and(x, 0xFF)
+    let a:context.Message_Block[a:context.Message_Block_Index] = and(x, 0xFF)
     let a:context.Message_Block_Index += 1
 
     let a:context.Length_Low += 8
@@ -356,13 +356,13 @@ function s:SHA1ProcessMessageBlock(context) abort
   "
   for t in range(16)
     let W[t] = s:bitwise_lshift(a:context.Message_Block[t * 4], 24)
-    let W[t] = s:bitwise_or(W[t], s:bitwise_lshift(a:context.Message_Block[t * 4 + 1], 16))
-    let W[t] = s:bitwise_or(W[t], s:bitwise_lshift(a:context.Message_Block[t * 4 + 2], 8))
-    let W[t] = s:bitwise_or(W[t], a:context.Message_Block[t * 4 + 3])
+    let W[t] = or(W[t], s:bitwise_lshift(a:context.Message_Block[t * 4 + 1], 16))
+    let W[t] = or(W[t], s:bitwise_lshift(a:context.Message_Block[t * 4 + 2], 8))
+    let W[t] = or(W[t], a:context.Message_Block[t * 4 + 3])
   endfor
 
   for t in range(16, 79)
-    let W[t] = s:SHA1CircularShift(1, s:bitwise_xor(s:bitwise_xor(s:bitwise_xor(W[t-3], W[t-8]), W[t-14]), W[t-16]))
+    let W[t] = s:SHA1CircularShift(1, xor(xor(xor(W[t-3], W[t-8]), W[t-14]), W[t-16]))
   endfor
 
   let A = a:context.Intermediate_Hash[0]
@@ -373,7 +373,7 @@ function s:SHA1ProcessMessageBlock(context) abort
 
   for t in range(20)
     let temp = s:SHA1CircularShift(5,A) +
-          \ s:bitwise_or(s:bitwise_and(B, C), s:bitwise_and(s:bitwise_not(B), D)) +
+          \ or(and(B, C), and(s:bitwise_not(B), D)) +
           \ E + W[t] + K[0]
     let E = D
     let D = C
@@ -383,7 +383,7 @@ function s:SHA1ProcessMessageBlock(context) abort
   endfor
 
   for t in range(20, 39)
-    let temp = s:SHA1CircularShift(5,A) + s:bitwise_xor(s:bitwise_xor(B, C), D) + E + W[t] + K[1]
+    let temp = s:SHA1CircularShift(5,A) + xor(xor(B, C), D) + E + W[t] + K[1]
     let E = D
     let D = C
     let C = s:SHA1CircularShift(30,B)
@@ -393,7 +393,7 @@ function s:SHA1ProcessMessageBlock(context) abort
 
   for t in range(40, 59)
     let temp = s:SHA1CircularShift(5,A) +
-          \ s:bitwise_or(s:bitwise_or(s:bitwise_and(B, C), s:bitwise_and(B, D)), s:bitwise_and(C, D)) +
+          \ or(or(and(B, C), and(B, D)), and(C, D)) +
           \ E + W[t] + K[2]
     let E = D
     let D = C
@@ -404,7 +404,7 @@ function s:SHA1ProcessMessageBlock(context) abort
 
   for t in range(60, 79)
     let temp = s:SHA1CircularShift(5,A) +
-          \ s:bitwise_xor(s:bitwise_xor(B, C), D) + E + W[t] + K[3]
+          \ xor(xor(B, C), D) + E + W[t] + K[3]
     let E = D
     let D = C
     let C = s:SHA1CircularShift(30,B)
@@ -603,7 +603,7 @@ function! s:cmp(a, b) abort
 endfunction
 
 function! s:uint8(n) abort
-  return s:bitwise_and(a:n, 0xFF)
+  return and(a:n, 0xFF)
 endfunction
 
 let s:k = [
@@ -675,20 +675,21 @@ let s:xor = [
       \ ]
 
 function! s:bitwise_lshift(a, n) abort
-  return a:a * s:k[a:n]
+  return and(a:a * s:k[a:n], 0xFFFFFFFF)
 endfunction
 
 function! s:bitwise_rshift(a, n) abort
-  let a = a:a < 0 ? a:a - 0x80000000 : a:a
+  let a = and(a:a, 0xFFFFFFFF)
+  let a = a < 0 ? a - 0x80000000 : a
   let a = a / s:k[a:n]
   if a:a < 0
     let a += 0x40000000 / s:k[a:n - 1]
   endif
-  return a
+  return and(a, 0xFFFFFFFF)
 endfunction
 
 function! s:bitwise_not(a) abort
-  return -a:a - 1
+  return xor(a:a, 0xFFFFFFFF)
 endfunction
 
 function! s:bitwise_and(a, b) abort
@@ -703,40 +704,6 @@ function! s:bitwise_and(a, b) abort
     let n = n * 0x10
   endwhile
   if (a:a < 0) && (a:b < 0)
-    let r += 0x80000000
-  endif
-  return r
-endfunction
-
-function! s:bitwise_or(a, b) abort
-  let a = a:a < 0 ? a:a - 0x80000000 : a:a
-  let b = a:b < 0 ? a:b - 0x80000000 : a:b
-  let r = 0
-  let n = 1
-  while a || b
-    let r += s:or[a % 0x10][b % 0x10] * n
-    let a = a / 0x10
-    let b = b / 0x10
-    let n = n * 0x10
-  endwhile
-  if (a:a < 0) || (a:b < 0)
-    let r += 0x80000000
-  endif
-  return r
-endfunction
-
-function! s:bitwise_xor(a, b) abort
-  let a = a:a < 0 ? a:a - 0x80000000 : a:a
-  let b = a:b < 0 ? a:b - 0x80000000 : a:b
-  let r = 0
-  let n = 1
-  while a || b
-    let r += s:xor[a % 0x10][b % 0x10] * n
-    let a = a / 0x10
-    let b = b / 0x10
-    let n = n * 0x10
-  endwhile
-  if (a:a < 0) != (a:b < 0)
     let r += 0x80000000
   endif
   return r

@@ -30,6 +30,10 @@ function! webapi#oauth#request_token(url, ctx, ...) abort
   let hmacsha1 = webapi#hmac#sha1(webapi#http#encodeURI(a:ctx.consumer_secret) . "&", query_string)
   let query["oauth_signature"] = webapi#base64#b64encodebin(hmacsha1)
   let res = webapi#http#post(a:url, query, {})
+  if res.status != '200'
+    let a:ctx['response' = res
+    return -1
+  endif
   let a:ctx.request_token = webapi#http#decodeURI(substitute(filter(split(res.content, "&"), "v:val =~ '^oauth_token='")[0], '^[^=]*=', '', ''))
   let a:ctx.request_token_secret = webapi#http#decodeURI(substitute(filter(split(res.content, "&"), "v:val =~ '^oauth_token_secret='")[0], '^[^=]*=', '', ''))
   return a:ctx

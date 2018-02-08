@@ -27,25 +27,75 @@ function! webapi#bit#bin2dec(v) abort
   return ret
 endfunction
 
-function! webapi#bit#or(a,b) abort
-  let a = webapi#bit#dec2bin(a:a)
-  let b = webapi#bit#dec2bin(a:b)
-  return webapi#bit#bin2dec(tr((a + b), '2', '1'))
-endfunction
+if has('*or')
+  function! webapi#bit#or(a,b) abort
+    return or(a:a, a:b)
+  endfunction
+else
+  function! webapi#bit#or(a,b) abort
+    let a = webapi#bit#dec2bin(a:a)
+    let b = webapi#bit#dec2bin(a:b)
+    return webapi#bit#bin2dec(tr((a + b), '2', '1'))
+  endfunction
+endif
 
-function! webapi#bit#and(a,b) abort
-  let a = webapi#bit#dec2bin(a:a)
-  let b = webapi#bit#dec2bin(a:b)
-  return webapi#bit#bin2dec(tr((a + b), '21', '10'))
-endfunction
+if has('*and')
+  function! webapi#bit#and(a,b) abort
+    return and(a:a, a:b)
+  endfunction
+else
+  function! webapi#bit#and(a,b) abort
+    let a = webapi#bit#dec2bin(a:a)
+    let b = webapi#bit#dec2bin(a:b)
+    return webapi#bit#bin2dec(tr((a + b), '21', '10'))
+  endfunction
+endif
+
+if has('*xor')
+  function! webapi#bit#xor(a,b) abort
+    return xor(a:a, a:b)
+  endfunction
+else
+  function! webapi#bit#xor(a,b) abort
+    let a = webapi#bit#dec2bin(a:a)
+    let b = webapi#bit#dec2bin(a:b)
+    return webapi#bit#bin2dec(tr((a + b), '21', '01'))
+  endfunction
+endif
+
+if has('*xor')
+  if has('num64')
+    function! webapi#bit#not(a) abort
+      return xor(a:a, 0xFFFFFFFFFFFFFFFF)
+    endfunction
+  else
+    function! webapi#bit#not(a) abort
+      return xor(a:a, 0xFFFFFFFF)
+    endfunction
+  endif
+else
+  function! webapi#bit#not(a) abort
+    let a = webapi#bit#dec2bin(a:a)
+    return webapi#bit#bin2dec(tr(a, '01', '10'))
+  endfunction
+endif
 
 function! webapi#bit#shift(a,b) abort
   let a = webapi#bit#dec2bin(a:a)
-  let a = repeat('0', 32-len(a)) . a
-  if a:b < 0
-    let a = (repeat('0', -a:b) . a[: a:b-1])[-32:]
-  elseif a:b > 0
-    let a = (a . repeat('0', a:b))[-32:]
+  if has('num64')
+    let a = repeat('0', 64-len(a)) . a
+    if a:b < 0
+      let a = (repeat('0', -a:b) . a[: a:b-1])[-64:]
+    elseif a:b > 0
+      let a = (a . repeat('0', a:b))[-64:]
+    endif
+  else
+    let a = repeat('0', 32-len(a)) . a
+    if a:b < 0
+      let a = (repeat('0', -a:b) . a[: a:b-1])[-32:]
+    elseif a:b > 0
+      let a = (a . repeat('0', a:b))[-32:]
+    endif
   endif
   return webapi#bit#bin2dec(a)
 endfunction

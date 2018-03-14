@@ -27,7 +27,7 @@ function! webapi#bit#bin2dec(v) abort
   return ret
 endfunction
 
-if has('*or')
+if exists('*or')
   function! webapi#bit#or(a,b) abort
     return or(a:a, a:b)
   endfunction
@@ -39,7 +39,7 @@ else
   endfunction
 endif
 
-if has('*and')
+if exists('*and')
   function! webapi#bit#and(a,b) abort
     return and(a:a, a:b)
   endfunction
@@ -51,7 +51,7 @@ else
   endfunction
 endif
 
-if has('*xor')
+if exists('*xor')
   function! webapi#bit#xor(a,b) abort
     return xor(a:a, a:b)
   endfunction
@@ -63,7 +63,7 @@ else
   endfunction
 endif
 
-if has('*xor')
+if exists('*xor')
   if has('num64')
     function! webapi#bit#not(a) abort
       return xor(a:a, 0xFFFFFFFFFFFFFFFF)

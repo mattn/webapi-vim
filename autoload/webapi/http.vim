@@ -109,7 +109,7 @@ function! webapi#http#encodeURIComponent(items) abort
     let i = 0
     while i < len
       let ch = items[i]
-      if ch =~# '[0-9A-Za-z-._~!''()*]'
+      if ch =~# '[0-9A-Za-z-._!''()*]'
         let ret .= ch
       elseif ch == ' '
         let ret .= '+'

@@ -25,7 +25,7 @@ function! s:tweet(status) abort
       return
     endif
     if has('win32') || has('win64')
-      exe printf('!start rundll32 url.dll,FileProtocolHandler %s?oauth_token=%s', auth_url, .ctx.request_token)
+      exe printf('!start rundll32 url.dll,FileProtocolHandler %s?oauth_token=%s', auth_url, ctx.request_token)
     else
       call system(printf("xdg-open '%s?oauth_token=%s'", auth_url, ctx.request_token))
     endif

@@ -56,7 +56,7 @@ function! webapi#html#encodeEntityReference(str) abort
 endfunction
 
 function! webapi#html#parse(html) abort
-  let html = substitute(a:html, '<\(area\|base\|basefont\|br\|nobr\|col\|frame\|hr\|img\|input\|isindex\|link\|meta\|param\|embed\|keygen\|command\)\([^>]*[^/]\|\)>', '<\1\2/>', 'g')
+  let html = substitute(a:html, '<\(area\|base\|basefont\|br\|nobr\|col\|frame\|hr\|img\|input\|isindex\|link\|meta\|param\|embed\|keygen\|command\)\([^>]*[^/]\|\)>', '<\1\2 />', 'g')
   return webapi#xml#parse(html)
 endfunction
 

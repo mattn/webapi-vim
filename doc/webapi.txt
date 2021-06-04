@@ -10,7 +10,7 @@ CONTENTS				*webapi-contents* *webapi* *web-api*
 
 XML Parser				|webapi-xml|
 HTML Parser				|webapi-html|
-JSON Parser				|json-html|
+JSON Parser				|webapi-json|
 
 ==============================================================================
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl

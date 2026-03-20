@@ -109,7 +109,7 @@ function! webapi#json#encode(val) abort
     let json = substitute(json, "\r", '\\r', 'g')
     let json = substitute(json, "\n", '\\n', 'g')
     let json = substitute(json, "\t", '\\t', 'g')
-    let json = substitute(json, '\([[:cntrl:]]\)', '\=printf("\x%02d", char2nr(submatch(1)))', 'g')
+    let json = substitute(json, '\([[:cntrl:]]\)', '\=printf("\x%02x", char2nr(submatch(1)))', 'g')
     return iconv(json, &encoding, "utf-8")
   elseif type(a:val) == 2
     let s = string(a:val)

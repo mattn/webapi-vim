@@ -1,0 +1,32 @@
+let s:assert = themis#helper('assert')
+
+Describe webapi#xml#parse
+  It restores maxmempattern after successful parse
+    let old = &maxmempattern
+    call webapi#xml#parse('<root><child/></root>')
+    call s:assert.equals(&maxmempattern, old)
+  End
+
+  It restores maxfuncdepth after successful parse
+    let old = &maxfuncdepth
+    call webapi#xml#parse('<root><child/></root>')
+    call s:assert.equals(&maxfuncdepth, old)
+  End
+
+  It parses simple xml
+    let node = webapi#xml#parse('<root><child/></root>')
+    call s:assert.equals(node.name, 'root')
+    call s:assert.equals(len(node.child), 1)
+    call s:assert.equals(node.child[0].name, 'child')
+  End
+
+  It parses attributes
+    let node = webapi#xml#parse('<root key="value"/>')
+    call s:assert.equals(node.attr.key, 'value')
+  End
+
+  It parses text content
+    let node = webapi#xml#parse('<root>hello</root>')
+    call s:assert.equals(node.value(), 'hello')
+  End
+End

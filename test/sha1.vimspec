@@ -1,0 +1,15 @@
+let s:assert = themis#helper('assert')
+
+Describe webapi#sha1#sha1
+  It computes SHA-1 of "abc"
+    call s:assert.equals(webapi#sha1#sha1("abc"), "a9993e364706816aba3e25717850c26c9cd0d89d")
+  End
+
+  It computes SHA-1 of longer string
+    call s:assert.equals(webapi#sha1#sha1("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"), "84983e441c3bd26ebaae4aa1f95129e5e54670f1")
+  End
+
+  It computes SHA-1 of empty string
+    call s:assert.equals(webapi#sha1#sha1(""), "da39a3ee5e6b4b0d3255bfef95601890afd80709")
+  End
+End

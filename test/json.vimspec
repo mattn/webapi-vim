@@ -1,0 +1,72 @@
+let s:assert = themis#helper('assert')
+
+Describe webapi#json#encode
+  It encodes control characters as hex
+    call s:assert.match(webapi#json#encode("\x01"), '".*01.*"')
+    call s:assert.match(webapi#json#encode("\x0b"), '".*0b.*"')
+    call s:assert.match(webapi#json#encode("\x1f"), '".*1f.*"')
+  End
+
+  It encodes tab, cr, lf with escape sequences
+    call s:assert.equals(webapi#json#encode("\t"), '"\t"')
+    call s:assert.equals(webapi#json#encode("\r"), '"\r"')
+    call s:assert.equals(webapi#json#encode("\n"), '"\n"')
+  End
+
+  It encodes strings
+    call s:assert.equals(webapi#json#encode("hello"), '"hello"')
+  End
+
+  It encodes numbers
+    call s:assert.equals(webapi#json#encode(42), 42)
+  End
+
+  It encodes lists
+    call s:assert.equals(webapi#json#encode([1, 2, 3]), '[1,2,3]')
+  End
+
+  It encodes dicts
+    call s:assert.equals(webapi#json#encode({'a': 1}), '{"a":1}')
+  End
+
+  It encodes null, true, false
+    call s:assert.equals(webapi#json#encode(function('webapi#json#null')), 'null')
+    call s:assert.equals(webapi#json#encode(function('webapi#json#true')), 'true')
+    call s:assert.equals(webapi#json#encode(function('webapi#json#false')), 'false')
+  End
+End
+
+Describe webapi#json#decode
+  It decodes strings
+    call s:assert.equals(webapi#json#decode('"hello"'), 'hello')
+  End
+
+  It decodes numbers
+    call s:assert.equals(webapi#json#decode('42'), 42)
+  End
+
+  It decodes lists
+    call s:assert.equals(webapi#json#decode('[1,2,3]'), [1, 2, 3])
+  End
+
+  It decodes dicts
+    call s:assert.equals(webapi#json#decode('{"a":1}'), {'a': 1})
+  End
+
+  It decodes nested structures
+    call s:assert.equals(webapi#json#decode('{"a":[1,2]}'), {'a': [1, 2]})
+  End
+
+  It decodes true and false
+    call s:assert.equals(webapi#json#decode('true'), 1)
+    call s:assert.equals(webapi#json#decode('false'), 0)
+  End
+
+  It decodes null
+    call s:assert.equals(webapi#json#decode('null'), 0)
+  End
+
+  It decodes unicode escapes
+    call s:assert.equals(webapi#json#decode('"hello\u0020world"'), 'hello world')
+  End
+End

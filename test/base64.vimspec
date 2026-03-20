@@ -1,0 +1,35 @@
+let s:assert = themis#helper('assert')
+
+Describe webapi#base64#b64encode
+  It encodes string without padding
+    call s:assert.equals(webapi#base64#b64encode("hello, world"), "aGVsbG8sIHdvcmxk")
+  End
+
+  It encodes string with double padding
+    call s:assert.equals(webapi#base64#b64encode("hello, worldx"), "aGVsbG8sIHdvcmxkeA==")
+  End
+
+  It encodes string with single padding
+    call s:assert.equals(webapi#base64#b64encode("hello, worldxx"), "aGVsbG8sIHdvcmxkeHg=")
+  End
+
+  It encodes string aligned to 3 bytes
+    call s:assert.equals(webapi#base64#b64encode("hello, worldxxx"), "aGVsbG8sIHdvcmxkeHh4")
+  End
+
+  It encodes empty string
+    call s:assert.equals(webapi#base64#b64encode(""), "")
+  End
+End
+
+Describe webapi#base64#b64decode
+  It decodes string without padding
+    call s:assert.equals(webapi#base64#b64decode("aGVsbG8sIHdvcmxk"), "hello, world")
+  End
+
+  It round-trips strings
+    for s in ["hello", "hello, world", "hello, worldx", "hello, worldxx", "hello, worldxxx"]
+      call s:assert.equals(webapi#base64#b64decode(webapi#base64#b64encode(s)), s)
+    endfor
+  End
+End

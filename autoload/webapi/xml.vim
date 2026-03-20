@@ -295,6 +295,8 @@ function! webapi#xml#parse(xml) abort
     call s:parse_tree({'xml': a:xml, 'encoding': ''}, top)
     for node in top.child
       if type(node) == 4
+        let &maxmempattern=oldmaxmempattern
+        let &maxfuncdepth=oldmaxfuncdepth
         return node
       endif
       unlet node

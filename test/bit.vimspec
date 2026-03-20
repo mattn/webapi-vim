@@ -1,52 +1,50 @@
-let s:assert = themis#helper('assert')
-
 Describe webapi#bit#dec2bin
   It converts decimal to binary string
-    call s:assert.equals(webapi#bit#dec2bin(0), 0)
-    call s:assert.equals(webapi#bit#dec2bin(1), '1')
-    call s:assert.equals(webapi#bit#dec2bin(5), '101')
-    call s:assert.equals(webapi#bit#dec2bin(255), '11111111')
+    Assert Equals(webapi#bit#dec2bin(0), 0)
+    Assert Equals(webapi#bit#dec2bin(1), '1')
+    Assert Equals(webapi#bit#dec2bin(5), '101')
+    Assert Equals(webapi#bit#dec2bin(255), '11111111')
   End
 End
 
 Describe webapi#bit#bin2dec
   It converts binary string to decimal
-    call s:assert.equals(webapi#bit#bin2dec(''), 0)
-    call s:assert.equals(webapi#bit#bin2dec('1'), 1)
-    call s:assert.equals(webapi#bit#bin2dec('101'), 5)
-    call s:assert.equals(webapi#bit#bin2dec('11111111'), 255)
+    Assert Equals(webapi#bit#bin2dec(''), 0)
+    Assert Equals(webapi#bit#bin2dec('1'), 1)
+    Assert Equals(webapi#bit#bin2dec('101'), 5)
+    Assert Equals(webapi#bit#bin2dec('11111111'), 255)
   End
 End
 
 Describe webapi#bit#or
   It computes bitwise OR
-    call s:assert.equals(webapi#bit#or(0x0F, 0xF0), 0xFF)
-    call s:assert.equals(webapi#bit#or(0, 0), 0)
+    Assert Equals(webapi#bit#or(0x0F, 0xF0), 0xFF)
+    Assert Equals(webapi#bit#or(0, 0), 0)
   End
 End
 
 Describe webapi#bit#and
   It computes bitwise AND
-    call s:assert.equals(webapi#bit#and(0xFF, 0x0F), 0x0F)
-    call s:assert.equals(webapi#bit#and(0xFF, 0), 0)
+    Assert Equals(webapi#bit#and(0xFF, 0x0F), 0x0F)
+    Assert Equals(webapi#bit#and(0xFF, 0), 0)
   End
 End
 
 Describe webapi#bit#xor
   It computes bitwise XOR
-    call s:assert.equals(webapi#bit#xor(0xFF, 0x0F), 0xF0)
-    call s:assert.equals(webapi#bit#xor(0xFF, 0xFF), 0)
+    Assert Equals(webapi#bit#xor(0xFF, 0x0F), 0xF0)
+    Assert Equals(webapi#bit#xor(0xFF, 0xFF), 0)
   End
 End
 
 Describe webapi#bit#shift
   It shifts left
-    call s:assert.equals(webapi#bit#shift(1, 4), 16)
-    call s:assert.equals(webapi#bit#shift(1, 8), 256)
+    Assert Equals(webapi#bit#shift(1, 4), 16)
+    Assert Equals(webapi#bit#shift(1, 8), 256)
   End
 
   It shifts right
-    call s:assert.equals(webapi#bit#shift(256, -4), 16)
-    call s:assert.equals(webapi#bit#shift(256, -8), 1)
+    Assert Equals(webapi#bit#shift(256, -4), 16)
+    Assert Equals(webapi#bit#shift(256, -8), 1)
   End
 End

@@ -1,0 +1,3 @@
+set encoding=utf-8
+set rtp+=.
+call themis#helper('command').with(themis#helper('assert'))

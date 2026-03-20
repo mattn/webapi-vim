@@ -1,35 +1,33 @@
-let s:assert = themis#helper('assert')
-
 Describe webapi#html#encodeEntityReference
   It encodes newline as LF not CR
-    call s:assert.equals(webapi#html#encodeEntityReference("\n"), '&#x0a;')
+    Assert Equals(webapi#html#encodeEntityReference("\n"), '&#x0a;')
   End
 
   It encodes ampersand
-    call s:assert.equals(webapi#html#encodeEntityReference('&'), '&amp;')
+    Assert Equals(webapi#html#encodeEntityReference('&'), '&amp;')
   End
 
   It encodes angle brackets
-    call s:assert.equals(webapi#html#encodeEntityReference('<'), '&lt;')
-    call s:assert.equals(webapi#html#encodeEntityReference('>'), '&gt;')
+    Assert Equals(webapi#html#encodeEntityReference('<'), '&lt;')
+    Assert Equals(webapi#html#encodeEntityReference('>'), '&gt;')
   End
 
   It encodes quotes
-    call s:assert.equals(webapi#html#encodeEntityReference('"'), '&quot;')
-    call s:assert.equals(webapi#html#encodeEntityReference("'"), '&apos;')
+    Assert Equals(webapi#html#encodeEntityReference('"'), '&quot;')
+    Assert Equals(webapi#html#encodeEntityReference("'"), '&apos;')
   End
 
   It encodes space as nbsp
-    call s:assert.equals(webapi#html#encodeEntityReference(' '), '&nbsp;')
+    Assert Equals(webapi#html#encodeEntityReference(' '), '&nbsp;')
   End
 End
 
 Describe webapi#html#decodeEntityReference
   It decodes basic entities
-    call s:assert.equals(webapi#html#decodeEntityReference('&amp;'), '&')
-    call s:assert.equals(webapi#html#decodeEntityReference('&lt;'), '<')
-    call s:assert.equals(webapi#html#decodeEntityReference('&gt;'), '>')
-    call s:assert.equals(webapi#html#decodeEntityReference('&quot;'), '"')
-    call s:assert.equals(webapi#html#decodeEntityReference('&apos;'), "'")
+    Assert Equals(webapi#html#decodeEntityReference('&amp;'), '&')
+    Assert Equals(webapi#html#decodeEntityReference('&lt;'), '<')
+    Assert Equals(webapi#html#decodeEntityReference('&gt;'), '>')
+    Assert Equals(webapi#html#decodeEntityReference('&quot;'), '"')
+    Assert Equals(webapi#html#decodeEntityReference('&apos;'), "'")
   End
 End

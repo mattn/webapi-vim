@@ -1,11 +1,9 @@
-let s:assert = themis#helper('assert')
-
 Describe webapi#hmac#sha1
   It computes HMAC-SHA1 (RFC 2202 test case 1)
-    call s:assert.equals(webapi#hmac#sha1(repeat("\x0b", 20), "Hi There"), "b617318655057264e28bc0b6fb378c8ef146be00")
+    Assert Equals(webapi#hmac#sha1(repeat("\x0b", 20), "Hi There"), "b617318655057264e28bc0b6fb378c8ef146be00")
   End
 
   It computes HMAC-SHA1 (RFC 2202 test case 2)
-    call s:assert.equals(webapi#hmac#sha1("Jefe", "what do ya want for nothing?"), "effcdf6ae5eb2fa2d27416d5f184df9c259a7c79")
+    Assert Equals(webapi#hmac#sha1("Jefe", "what do ya want for nothing?"), "effcdf6ae5eb2fa2d27416d5f184df9c259a7c79")
   End
 End

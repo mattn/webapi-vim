@@ -1,56 +1,54 @@
-let s:assert = themis#helper('assert')
-
 Describe webapi#http#encodeURI
   It encodes special characters
-    call s:assert.equals(webapi#http#encodeURI("hello world"), "hello%20world")
-    call s:assert.equals(webapi#http#encodeURI("a&b=c"), "a%26b%3Dc")
+    Assert Equals(webapi#http#encodeURI("hello world"), "hello%20world")
+    Assert Equals(webapi#http#encodeURI("a&b=c"), "a%26b%3Dc")
   End
 
   It preserves unreserved characters
-    call s:assert.equals(webapi#http#encodeURI("abc123"), "abc123")
-    call s:assert.equals(webapi#http#encodeURI("a.b-c_d"), "a.b-c_d")
+    Assert Equals(webapi#http#encodeURI("abc123"), "abc123")
+    Assert Equals(webapi#http#encodeURI("a.b-c_d"), "a.b-c_d")
   End
 
   It encodes dict as query string
-    call s:assert.equals(webapi#http#encodeURI({'a': '1', 'b': '2'}), "a=1&b=2")
+    Assert Equals(webapi#http#encodeURI({'a': '1', 'b': '2'}), "a=1&b=2")
   End
 End
 
 Describe webapi#http#encodeURIComponent
   It encodes special characters
-    call s:assert.equals(webapi#http#encodeURIComponent("a&b"), "a%26b")
+    Assert Equals(webapi#http#encodeURIComponent("a&b"), "a%26b")
   End
 
   It preserves unreserved characters
-    call s:assert.equals(webapi#http#encodeURIComponent("abc"), "abc")
+    Assert Equals(webapi#http#encodeURIComponent("abc"), "abc")
   End
 
   It encodes space as plus
-    call s:assert.equals(webapi#http#encodeURIComponent("a b"), "a+b")
+    Assert Equals(webapi#http#encodeURIComponent("a b"), "a+b")
   End
 
   It encodes dict as query string
-    call s:assert.equals(webapi#http#encodeURIComponent({'a': '1', 'b': '2'}), "a=1&b=2")
+    Assert Equals(webapi#http#encodeURIComponent({'a': '1', 'b': '2'}), "a=1&b=2")
   End
 End
 
 Describe webapi#http#decodeURI
   It decodes percent-encoded characters
-    call s:assert.equals(webapi#http#decodeURI("hello%20world"), "hello world")
-    call s:assert.equals(webapi#http#decodeURI("a%26b"), "a&b")
+    Assert Equals(webapi#http#decodeURI("hello%20world"), "hello world")
+    Assert Equals(webapi#http#decodeURI("a%26b"), "a&b")
   End
 
   It decodes plus as space
-    call s:assert.equals(webapi#http#decodeURI("a+b"), "a b")
+    Assert Equals(webapi#http#decodeURI("a+b"), "a b")
   End
 End
 
 Describe webapi#http#escape
   It encodes special characters
-    call s:assert.equals(webapi#http#escape("hello world"), "hello%20world")
+    Assert Equals(webapi#http#escape("hello world"), "hello%20world")
   End
 
   It preserves safe characters
-    call s:assert.equals(webapi#http#escape("a.b-c_d/e"), "a.b-c_d/e")
+    Assert Equals(webapi#http#escape("a.b-c_d/e"), "a.b-c_d/e")
   End
 End

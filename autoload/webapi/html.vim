@@ -48,7 +48,7 @@ function! webapi#html#encodeEntityReference(str) abort
   let str = substitute(str, '&', '\&amp;', 'g')
   let str = substitute(str, '>', '\&gt;', 'g')
   let str = substitute(str, '<', '\&lt;', 'g')
-  let str = substitute(str, "\n", '\&#x0d;', 'g')
+  let str = substitute(str, "\n", '\&#x0a;', 'g')
   let str = substitute(str, '"', '\&quot;', 'g')
   let str = substitute(str, "'", '\&apos;', 'g')
   let str = substitute(str, ' ', '\&nbsp;', 'g')

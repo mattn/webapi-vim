@@ -1,0 +1,20 @@
+name: Test
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        vim:
+          - v9.1.0
+          - nightly
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Vim
+        uses: thinca/action-setup-vim@v2
+        with:
+          vim_version: ${{ matrix.vim }}
+      - name: Clone vim-themis
+        run: git clone --depth 1 https://github.com/thinca/vim-themis.git ../vim-themis
+      - name: Run tests
+        run: ../vim-themis/bin/themis test/

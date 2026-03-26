@@ -25,8 +25,26 @@ function! webapi#json#decode(json) abort
   return json_decode(a:json)
 endfunction
 
+function! s:convert_funcrefs(val) abort
+  if type(a:val) == 2
+    let s = string(a:val)
+    if s == "function('webapi#json#null')"
+      return v:null
+    elseif s == "function('webapi#json#true')"
+      return v:true
+    elseif s == "function('webapi#json#false')"
+      return v:false
+    endif
+  elseif type(a:val) == 3
+    return map(copy(a:val), 's:convert_funcrefs(v:val)')
+  elseif type(a:val) == 4
+    return map(copy(a:val), 's:convert_funcrefs(v:val)')
+  endif
+  return a:val
+endfunction
+
 function! webapi#json#encode(val) abort
-  return json_encode(a:val)
+  return json_encode(s:convert_funcrefs(a:val))
 endfunction
 
 else

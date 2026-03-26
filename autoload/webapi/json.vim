@@ -7,6 +7,30 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+if has('patch-9.2.0248')
+
+function! webapi#json#null() abort
+  return v:null
+endfunction
+
+function! webapi#json#true() abort
+  return v:true
+endfunction
+
+function! webapi#json#false() abort
+  return v:false
+endfunction
+
+function! webapi#json#decode(json) abort
+  return json_decode(a:json)
+endfunction
+
+function! webapi#json#encode(val) abort
+  return json_encode(a:val)
+endfunction
+
+else
+
 function! webapi#json#null() abort
   return 0
 endfunction
@@ -128,6 +152,8 @@ function! webapi#json#encode(val) abort
     return string(a:val)
   endif
 endfunction
+
+endif
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
